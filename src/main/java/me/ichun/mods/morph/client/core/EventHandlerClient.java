@@ -11,7 +11,7 @@ import me.ichun.mods.morph.common.morph.save.PlayerMorphData;
 import me.ichun.mods.morph.common.packet.PacketRequestMorphInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.PointOfView;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.RenderNameplateEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
@@ -120,7 +120,7 @@ public class EventHandlerClient
             boolean handled = false;
 
             ArrayList<MorphVariant> morphs = morphData.morphs;
-            for(int i = 0; i < morphs.size(); i++)
+            for(int i = 0; i < morphs.size()_keeper(); i++)
             {
                 MorphVariant morph = morphs.get(i);
                 if(morph.id.equals(variant.id))

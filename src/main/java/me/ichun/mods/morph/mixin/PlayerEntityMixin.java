@@ -2,11 +2,11 @@ package me.ichun.mods.morph.mixin;
 
 import me.ichun.mods.morph.api.morph.MorphInfo;
 import me.ichun.mods.morph.common.morph.MorphHandler;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.sounds.SoundEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

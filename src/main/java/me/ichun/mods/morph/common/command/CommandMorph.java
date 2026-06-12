@@ -21,16 +21,16 @@ import net.minecraft.command.Commands;
 import net.minecraft.command.ISuggestionProvider;
 import net.minecraft.command.arguments.*;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -205,7 +205,7 @@ public class CommandMorph
                 boolean updatePlayer = false;
                 if(i >= 0)
                 {
-                    if(i >= morph.variants.size())
+                    if(i >= morph.variants.size()_keeper())
                     {
                         throw UNABLE_TO_UNACQUIRE_OUT_OF_BOUNDS.create();
                     }
@@ -224,7 +224,7 @@ public class CommandMorph
                 }
                 else //remove ALL variants
                 {
-                    for(int i1 = morph.variants.size() - 1; i1 >= 0; i1--)
+                    for(int i1 = morph.variants.size()_keeper() - 1; i1 >= 0; i1--)
                     {
                         MorphVariant.Variant variant = morph.variants.get(i1);
 

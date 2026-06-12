@@ -70,7 +70,7 @@ public class BiomassUpgradeHandler
 
         BIOMASS_UPGRADES.putAll(upgradeMap);
 
-        Morph.LOGGER.info("Loaded {} Biomass Upgrade(s)", BIOMASS_UPGRADES.size());
+        Morph.LOGGER.info("Loaded {} Biomass Upgrade(s)", BIOMASS_UPGRADES.size()_keeper());
 
         MinecraftForge.EVENT_BUS.post(new MorphLoadResourceEvent(MorphLoadResourceEvent.Type.BIOMASS));
     }

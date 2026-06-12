@@ -2,15 +2,15 @@ package me.ichun.mods.morph.api.morph;
 
 import me.ichun.mods.morph.api.MorphApi;
 import me.ichun.mods.morph.api.mob.trait.Trait;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,11 +30,10 @@ public class MorphState implements Comparable<MorphState>
 
     private MorphState(){}
 
-    public MorphState(MorphVariant variant, PlayerEntity player)
+    public MorphState(MorphVariant variant, Player player)
     {
         this.variant = variant;
         this.traits = MorphApi.getApiImpl().getTraitsForVariant(variant, player);
-        //TODO make sure other clients know what traits the player has unlocked
     }
 
     //For Traits
@@ -53,9 +52,9 @@ public class MorphState implements Comparable<MorphState>
         }
     }
 
-    public void tick(PlayerEntity player, boolean resetInventory)
+    public void tick(Player player, boolean resetInventory)
     {
-        LivingEntity livingInstance = getEntityInstance(player.world, player);
+        LivingEntity livingInstance = getEntityInstance(player.level(), player);
         livingInstance.captureDrops(entInstanceDropCapture); //We don't want our mob instance to drop items
         entInstanceDropCapture.clear(); //Have the items, GC.
 
@@ -63,10 +62,8 @@ public class MorphState implements Comparable<MorphState>
 
         syncInventory(livingInstance, player, true); //reset the inventory so the entity doesn't actually use our equipment when ticking.
 
-        if(livingInstance.canUpdate())
-        {
-            livingInstance.tick();
-        }
+        // In 1.20.1, tick() is fine. canUpdate() might be gone or renamed.
+        livingInstance.tick();
 
         syncEntityWithPlayer(livingInstance, player);
 
@@ -75,7 +72,7 @@ public class MorphState implements Comparable<MorphState>
             syncInventory(livingInstance, player, false); //sync the inventory for rendering purposes.
         }
 
-        livingInstance.getDataManager().setClean(); //we don't want to flood the client with packets for an entity it can't find.
+        livingInstance.getEntityData().setDirty(); //we don't want to flood the client with packets for an entity it can't find.
     }
 
     public void tickTraits()
@@ -87,19 +84,11 @@ public class MorphState implements Comparable<MorphState>
     }
 
     @Nonnull
-    @Deprecated
-    //remove in 1.18
-    public LivingEntity getEntityInstance(World world, @Nullable UUID playerId)
+    public LivingEntity getEntityInstance(Level level, @Nullable Player player)
     {
-        return getEntityInstance(world, playerId != null ? world.getPlayerByUuid(playerId) : null);
-    }
-
-    @Nonnull
-    public LivingEntity getEntityInstance(World world, @Nullable PlayerEntity player)
-    {
-        if(entInstance == null || entInstance.world != world)
+        if(entInstance == null || entInstance.level() != level)
         {
-            entInstance = variant.createEntityInstance(world, player);
+            entInstance = variant.createEntityInstance(level, player);
 
             for(Trait<?> trait : traits)
             {
@@ -110,13 +99,13 @@ public class MorphState implements Comparable<MorphState>
         return entInstance;
     }
 
-    public CompoundNBT write(CompoundNBT tag)
+    public CompoundTag write(CompoundTag tag)
     {
-        tag.put("variant", variant.write(new CompoundNBT()));
+        tag.put("variant", variant.write(new CompoundTag()));
         return tag;
     }
 
-    public void read(CompoundNBT tag)
+    public void read(CompoundTag tag)
     {
         variant = MorphVariant.createFromNBT(tag.getCompound("variant"));
     }
@@ -138,54 +127,54 @@ public class MorphState implements Comparable<MorphState>
         return variant.compareTo(o.variant);
     }
 
-    public static MorphState createFromNbt(CompoundNBT tag)
+    public static MorphState createFromNbt(CompoundTag tag)
     {
         MorphState state = new MorphState();
         state.read(tag);
         return state;
     }
 
-    public static void syncEntityPosRotWithPlayer(LivingEntity living, PlayerEntity player)
+    public static void syncEntityPosRotWithPlayer(LivingEntity living, Player player)
     {
-        living.ticksExisted = player.ticksExisted;
+        living.tickCount = player.tickCount;
 
-        living.setLocationAndAngles(player.getPosX(), player.getPosY(), player.getPosZ(), player.rotationYaw, player.rotationPitch);
-        living.lastTickPosX = player.lastTickPosX;
-        living.lastTickPosY = player.lastTickPosY;
-        living.lastTickPosZ = player.lastTickPosZ;
+        living.moveTo(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
+        living.xo = player.xo;
+        living.yo = player.yo;
+        living.zo = player.zo;
 
-        living.prevPosX = player.prevPosX;
-        living.prevPosY = player.prevPosY;
-        living.prevPosZ = player.prevPosZ;
+        living.xOld = player.xOld;
+        living.yOld = player.yOld;
+        living.zOld = player.zOld;
 
-        living.prevRotationYaw = player.prevRotationYaw;
-        living.prevRotationPitch = player.prevRotationPitch;
+        living.yRotO = player.yRotO;
+        living.xRotO = player.xRotO;
 
-        living.rotationYawHead = player.rotationYawHead;
-        living.prevRotationYawHead = player.prevRotationYawHead;
+        living.setYHeadRot(player.getYHeadRot());
+        living.yHeadRotO = player.yHeadRotO;
 
-        living.renderYawOffset = player.renderYawOffset;
-        living.prevRenderYawOffset = player.prevRenderYawOffset;
+        living.yBodyRot = player.yBodyRot;
+        living.yBodyRotO = player.yBodyRotO;
 
         //Clear potions so they don't get ticked when we tick this entity
-        living.getActivePotionMap().clear();
+        living.removeAllEffects();
     }
 
-    public static void syncEntityWithPlayer(LivingEntity living, PlayerEntity player)
+    public static void syncEntityWithPlayer(LivingEntity living, Player player)
     {
         syncEntityPosRotWithPlayer(living, player); //resync with the player position in case the entity moved whilst ticking.
 
         //Others
-        living.limbSwing = player.limbSwing;
-        living.limbSwingAmount = player.limbSwingAmount;
+        living.walkDist = player.walkDist;
+        living.walkDistO = player.walkDistO;
 
-        living.setMotion(player.getMotion());
+        living.setDeltaMovement(player.getDeltaMovement());
 
         //Entity stuff
-        living.collidedHorizontally = player.collidedHorizontally;
-        living.collidedVertically = player.collidedVertically;
-        living.setOnGround(player.isOnGround());
-        living.setSneaking(player.isSneaking());
+        living.horizontalCollision = player.horizontalCollision;
+        living.verticalCollision = player.verticalCollision;
+        living.setOnGround(player.onGround());
+        living.setShiftKeyDown(player.isShiftKeyDown());
         living.setSwimming(player.isSwimming());
         living.setSprinting(player.isSprinting());
 
@@ -194,103 +183,99 @@ public class MorphState implements Comparable<MorphState>
         living.deathTime = player.deathTime;
 
         //LivingRender related stuff
-        living.swingProgressInt = player.swingProgressInt;
-        living.isSwingInProgress = player.isSwingInProgress;
-        living.swingingHand = player.swingingHand;
-        living.swingProgress = player.swingProgress;
-        living.prevSwingProgress = player.prevSwingProgress;
+        living.swingTime = player.swingTime;
+        living.swinging = player.swinging;
+        living.swingingArm = player.swingingArm;
+        living.attackAnim = player.attackAnim;
+        living.oAttackAnim = player.oAttackAnim;
 
-        living.ridingEntity = player.ridingEntity;
+        // ridingEntity is gone, use getVehicle()
+        // living.ridingEntity = player.ridingEntity;
 
         Pose pose = living.getPose();
         living.setPose(player.getPose());
 
         if(pose != living.getPose())
         {
-            living.recalculateSize();
+            living.refreshDimensions();
         }
 
-        if(player.getBedPosition().isPresent())
+        if(player.getSleepingPos().isPresent())
         {
-            living.setBedPosition(player.getBedPosition().get());
+            living.setSleepingPos(player.getSleepingPos().get());
         }
         else
         {
-            living.clearBedPosition();
+            living.clearSleepingPos();
         }
 
         living.setInvisible(player.isInvisible());
 
-        //living.setUniqueId(player.getUniqueID()); //iChun Note: Commented out because we shouldn't set the entity unique ID to the player's, might confuse world should the entity somehow ever be added by other mods. Sync it just pre render and reset it afterwards.
-
-        living.setGlowing(player.isGlowing());
+        living.setGlowingTag(player.isGlowing());
 
         //EntityRendererManager stuff
-        living.forceFireTicks(player.getFireTimer());
+        living.setRemainingFireTicks(player.getRemainingFireTicks());
 
         //Sync potions for rendering purposes
-        living.getActivePotionMap().putAll(player.getActivePotionMap());
+        living.getActiveEffectsMap().putAll(player.getActiveEffectsMap());
 
         specialEntityPlayerSync(living, player);
     }
 
-    public static void specialEntityPlayerSync(LivingEntity living, PlayerEntity player)
+    public static void specialEntityPlayerSync(LivingEntity living, Player player)
     {
-        for(BiConsumer<LivingEntity, PlayerEntity> consumer : MorphApi.getApiImpl().getModPlayerMorphSyncConsumers())
+        for(BiConsumer<LivingEntity, Player> consumer : MorphApi.getApiImpl().getModPlayerMorphSyncConsumers())
         {
             consumer.accept(living, player);
         }
     }
 
-    public static void syncInventory(LivingEntity living, PlayerEntity player, boolean reset)
+    public static void syncInventory(LivingEntity living, Player player, boolean reset)
     {
-        if(living instanceof PlayerEntity)
+        if(living instanceof Player)
         {
-            PlayerEntity playerEntity = (PlayerEntity)living;
+            Player playerEntity = (Player)living;
 
             //player entity plays sound when equipping items.
-            for(EquipmentSlotType value : EquipmentSlotType.values())
+            for(EquipmentSlot value : EquipmentSlot.values())
             {
-                boolean shouldReset = reset && (value == EquipmentSlotType.MAINHAND || value == EquipmentSlotType.OFFHAND);
-                if(!ItemStack.areItemStacksEqual(living.getItemStackFromSlot(value), shouldReset ? ItemStack.EMPTY : player.getItemStackFromSlot(value)))
+                boolean shouldReset = reset && (value == EquipmentSlot.MAINHAND || value == EquipmentSlot.OFFHAND);
+                if(!ItemStack.matches(living.getItemBySlot(value), shouldReset ? ItemStack.EMPTY : player.getItemBySlot(value)))
                 {
-                    ItemStack copy = shouldReset ? ItemStack.EMPTY : player.getItemStackFromSlot(value).copy();
-                    if (value == EquipmentSlotType.MAINHAND) {
-                        playerEntity.inventory.mainInventory.set(playerEntity.inventory.currentItem, copy);
-                    } else if (value == EquipmentSlotType.OFFHAND) {
-                        playerEntity.inventory.offHandInventory.set(0, copy);
-                    } else if (value.getSlotType() == EquipmentSlotType.Group.ARMOR) {
-                        playerEntity.inventory.armorInventory.set(value.getIndex(), copy);
+                    ItemStack copy = shouldReset ? ItemStack.EMPTY : player.getItemBySlot(value).copy();
+                    if (value == EquipmentSlot.MAINHAND) {
+                        playerEntity.getInventory().items.set(playerEntity.getInventory().selected, copy);
+                    } else if (value == EquipmentSlot.OFFHAND) {
+                        playerEntity.getInventory().offhand.set(0, copy);
+                    } else if (value.getType() == EquipmentSlot.Type.ARMOR) {
+                        playerEntity.getInventory().armor.set(value.getIndex(), copy);
                     }
                 }
             }
         }
         else
         {
-            for(EquipmentSlotType value : EquipmentSlotType.values())
+            for(EquipmentSlot value : EquipmentSlot.values())
             {
-                boolean shouldReset = reset && (value == EquipmentSlotType.MAINHAND || value == EquipmentSlotType.OFFHAND);
-                if(!ItemStack.areItemStacksEqual(living.getItemStackFromSlot(value), shouldReset ? ItemStack.EMPTY : player.getItemStackFromSlot(value)))
+                boolean shouldReset = reset && (value == EquipmentSlot.MAINHAND || value == EquipmentSlot.OFFHAND);
+                if(!ItemStack.matches(living.getItemBySlot(value), shouldReset ? ItemStack.EMPTY : player.getItemBySlot(value)))
                 {
-                    living.setItemStackToSlot(value, shouldReset ? ItemStack.EMPTY : player.getItemStackFromSlot(value).copy());
+                    living.setItemSlot(value, shouldReset ? ItemStack.EMPTY : player.getItemBySlot(value).copy());
                 }
             }
         }
 
-        if(player.isHandActive())
+        if(player.isUsingItem())
         {
-            if(player.getItemInUseMaxCount() == 1)
+            if(player.getUseItemRemainingTicks() == 1)
             {
-                Hand hand = player.getActiveHand();
-                living.setActiveHand(hand);
-                living.setLivingFlag(1, true);
-                living.setLivingFlag(2, hand == Hand.OFF_HAND);
+                InteractionHand hand = player.getUsedItemHand();
+                living.startUsingItem(hand);
             }
         }
         else
         {
-            living.setLivingFlag(1, false);
-            living.resetActiveHand();
+            living.stopUsingItem();
         }
     }
 }

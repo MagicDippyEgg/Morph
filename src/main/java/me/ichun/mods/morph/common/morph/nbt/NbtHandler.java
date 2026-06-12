@@ -8,8 +8,8 @@ import me.ichun.mods.morph.api.event.MorphLoadResourceEvent;
 import me.ichun.mods.morph.api.mob.nbt.NbtModifier;
 import me.ichun.mods.morph.common.Morph;
 import me.ichun.mods.morph.common.resource.ResourceHandler;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.commons.io.FileUtils;
 
@@ -67,7 +67,7 @@ public class NbtHandler
             Morph.LOGGER.error("Error loading NBT Modifier files.", e);
         }
 
-        Morph.LOGGER.info("Loaded {} NBT Modifier(s)", NBT_MODIFIERS.size() + NBT_MODIFIERS_INTERFACES.size());
+        Morph.LOGGER.info("Loaded {} NBT Modifier(s)", NBT_MODIFIERS.size()_keeper() + NBT_MODIFIERS_INTERFACES.size()_keeper());
 
         setupInterfaceModifiers();
 

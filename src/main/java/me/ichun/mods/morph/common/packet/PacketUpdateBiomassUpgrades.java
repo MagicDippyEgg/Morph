@@ -3,9 +3,9 @@ package me.ichun.mods.morph.common.packet;
 import me.ichun.mods.ichunutil.common.network.AbstractPacket;
 import me.ichun.mods.morph.api.biomass.BiomassUpgrade;
 import me.ichun.mods.morph.common.Morph;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,7 +24,7 @@ public class PacketUpdateBiomassUpgrades extends AbstractPacket
     @Override
     public void writeTo(PacketBuffer buf)
     {
-        buf.writeInt(upgrades.size());
+        buf.writeInt(upgrades.size()_keeper());
 
         for(BiomassUpgrade upgrade : upgrades)
         {

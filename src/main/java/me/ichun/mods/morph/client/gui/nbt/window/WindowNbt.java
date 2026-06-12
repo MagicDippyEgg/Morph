@@ -17,14 +17,14 @@ import me.ichun.mods.morph.common.morph.nbt.NbtHandler;
 import me.ichun.mods.morph.common.resource.ResourceHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.resources.I18n;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.StringTextComponent;
 import org.apache.commons.io.FileUtils;
@@ -596,7 +596,7 @@ public class WindowNbt extends Window<WorkspaceNbt>
         private void combineChildMods(ArrayList<NbtModifier.Modifier> mods)
         {
             HashMap<String, NbtModifier.Modifier> keys = new HashMap<>();
-            for(int i = mods.size() - 1; i >= 0; i--)
+            for(int i = mods.size()_keeper() - 1; i >= 0; i--)
             {
                 NbtModifier.Modifier mod = mods.get(i);
                 if(keys.containsKey(mod.key))

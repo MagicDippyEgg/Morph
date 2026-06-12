@@ -10,21 +10,21 @@ import me.ichun.mods.morph.common.Morph;
 import me.ichun.mods.morph.common.packet.PacketInvalidateClientHealth;
 import me.ichun.mods.morph.mixin.EntityInvokerMixin;
 import me.ichun.mods.morph.mixin.LivingEntityInvokerMixin;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.EntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.INBT;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -87,7 +87,7 @@ public class MorphInfoImpl extends MorphInfo
             for(Trait trait : nextState.traits)
             {
                 boolean foundTranslatableTrait = false;
-                for(int i = prevTraits.size() - 1; i >= 0; i--)
+                for(int i = prevTraits.size()_keeper() - 1; i >= 0; i--)
                 {
                     Trait<?> prevTrait = prevTraits.get(i);
                     if(prevTrait.canTransitionTo(trait))

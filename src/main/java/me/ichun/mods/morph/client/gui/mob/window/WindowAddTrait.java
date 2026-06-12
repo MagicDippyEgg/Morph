@@ -9,7 +9,7 @@ import me.ichun.mods.ichunutil.client.gui.bns.window.view.element.*;
 import me.ichun.mods.morph.api.mob.trait.Trait;
 import me.ichun.mods.morph.common.Morph;
 import me.ichun.mods.morph.common.mob.TraitHandler;
-import net.minecraft.client.resources.I18n;
+import net.minecraft.client.resources.language.I18n;
 
 import javax.annotation.Nonnull;
 import java.util.Comparator;

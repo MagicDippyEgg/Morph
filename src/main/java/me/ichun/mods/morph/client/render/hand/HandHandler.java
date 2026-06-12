@@ -2,8 +2,8 @@ package me.ichun.mods.morph.client.render.hand;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import me.ichun.mods.ichunutil.api.client.hand.HandInfo;
 import me.ichun.mods.ichunutil.api.common.PlacementCorrector;
 import me.ichun.mods.ichunutil.client.model.util.ModelHelper;
@@ -17,19 +17,19 @@ import me.ichun.mods.morph.common.Morph;
 import me.ichun.mods.morph.common.morph.MorphHandler;
 import me.ichun.mods.morph.common.resource.ResourceHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.player.AbstractClientPlayerEntity;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.InteractionHandSide;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderHandEvent;
@@ -431,7 +431,7 @@ public final class HandHandler
             MODEL_HAND_INFO.put(info.modelClass, info);
         }
 
-        Morph.LOGGER.info("Loaded {} Hand Info(s)", MODEL_HAND_INFO.size());
+        Morph.LOGGER.info("Loaded {} Hand Info(s)", MODEL_HAND_INFO.size()_keeper());
 
         MinecraftForge.EVENT_BUS.post(new MorphLoadResourceEvent(MorphLoadResourceEvent.Type.HAND));
     }

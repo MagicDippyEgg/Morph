@@ -1,6 +1,6 @@
 package me.ichun.mods.morph.client.core;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.ichun.mods.ichunutil.client.gui.mouse.MouseHelper;
 import me.ichun.mods.ichunutil.client.key.KeyBind;
@@ -30,14 +30,14 @@ import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.GraphicsFanciness;
 import net.minecraft.client.util.InputMappings;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -223,20 +223,20 @@ public class HudHandler
         if(info.isMorphed())
         {
             MorphVariant currentMorph = info.nextState.variant;
-            for(int i = 0; i < morphData.morphs.size(); i++)
+            for(int i = 0; i < morphData.morphs.size()_keeper(); i++)
             {
                 MorphVariant variant = morphData.morphs.get(i);
                 if(variant.id.equals(currentMorph.id))
                 {
                     indexVert = i;
 
-                    for(int i1 = 0; i1 < variant.variants.size(); i1++)
+                    for(int i1 = 0; i1 < variant.variants.size()_keeper(); i1++)
                     {
                         MorphVariant.Variant morphVariant = variant.variants.get(i1);
                         if(morphVariant.identifier.equals(currentMorph.thisVariant.identifier))
                         {
                             indexHori = i1;
-                            lastIndexHori = variant.variants.size() - 1;
+                            lastIndexHori = variant.variants.size()_keeper() - 1;
                             break;
                         }
                     }
@@ -449,7 +449,7 @@ public class HudHandler
 
         //makes the horizontal slider slide back in
         PlayerMorphData morphData = getMorphData();
-        indexHori = morphData.morphs.get(indexVert).variants.size() - 1;
+        indexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
         indexChangeTime = 0;
     }
 
@@ -461,7 +461,7 @@ public class HudHandler
             {
                 //morph to the selected Morph
                 MorphInfo info = MorphHandler.INSTANCE.getMorphInfo(mc.player);
-                MorphVariant variant = radialFavourites.get(MouseHelper.getSelectedIndex(radialFavourites.size()));
+                MorphVariant variant = radialFavourites.get(MouseHelper.getSelectedIndex(radialFavourites.size()_keeper()));
 
                 if(!info.isCurrentlyThisVariant(variant.thisVariant)) //if we're already morphed to this, don't morph to this.
                 {
@@ -530,7 +530,7 @@ public class HudHandler
                 lastIndexHori = (lastIndexHori + (indexHori - lastIndexHori) * (EntityHelper.sineifyProgress(MathHelper.clamp((float)indexChangeTime / INDEX_TIME, 0F, 1F))));
 
                 indexHori++;
-                if(indexHori >= morphData.morphs.get(indexVert).variants.size())
+                if(indexHori >= morphData.morphs.get(indexVert).variants.size()_keeper())
                 {
                     indexHori = 0;
                 }
@@ -540,14 +540,14 @@ public class HudHandler
                 lastIndexVert = (lastIndexVert + (indexVert - lastIndexVert) * (EntityHelper.sineifyProgress(MathHelper.clamp((float)indexChangeTime / INDEX_TIME, 0F, 1F))));
 
                 indexVert++;
-                if(indexVert >= morphData.morphs.size())
+                if(indexVert >= morphData.morphs.size()_keeper())
                 {
                     indexVert = 0;
                 }
 
-                if(morphData.morphs.size() > 1)
+                if(morphData.morphs.size()_keeper() > 1)
                 {
-                    lastIndexHori = morphData.morphs.get(indexVert).variants.size() - 1;
+                    lastIndexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
                     indexHori = 0;//reset the hori index
                 }
             }
@@ -561,7 +561,7 @@ public class HudHandler
                 indexHori--;
                 if(indexHori < 0)
                 {
-                    indexHori = morphData.morphs.get(indexVert).variants.size() - 1;
+                    indexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
                 }
             }
             else
@@ -571,12 +571,12 @@ public class HudHandler
                 indexVert--;
                 if(indexVert < 0)
                 {
-                    indexVert = morphData.morphs.size() - 1;
+                    indexVert = morphData.morphs.size()_keeper() - 1;
                 }
 
-                if(morphData.morphs.size() > 1)
+                if(morphData.morphs.size()_keeper() > 1)
                 {
-                    lastIndexHori = morphData.morphs.get(indexVert).variants.size() - 1;
+                    lastIndexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
                     indexHori = 0;//reset the hori index
                 }
             }
@@ -587,28 +587,28 @@ public class HudHandler
     private void validateIndices()
     {
         PlayerMorphData morphData = getMorphData();
-        if(indexVert >= morphData.morphs.size())
+        if(indexVert >= morphData.morphs.size()_keeper())
         {
             indexVert = 0;
 
-            lastIndexHori = morphData.morphs.get(indexVert).variants.size() - 1;
+            lastIndexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
             indexHori = 0;//reset the hori index
         }
         else if(indexVert < 0)
         {
-            indexVert = morphData.morphs.size() - 1;
+            indexVert = morphData.morphs.size()_keeper() - 1;
 
-            lastIndexHori = morphData.morphs.get(indexVert).variants.size() - 1;
+            lastIndexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
             indexHori = 0;//reset the hori index
         }
 
-        if(indexHori >= morphData.morphs.get(indexVert).variants.size())
+        if(indexHori >= morphData.morphs.get(indexVert).variants.size()_keeper())
         {
             indexHori = 0;
         }
         else if(indexHori < 0)
         {
-            indexHori = morphData.morphs.get(indexVert).variants.size() - 1;
+            indexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
         }
 
     }
@@ -637,20 +637,20 @@ public class HudHandler
         //Draw the vertical stack
         double indexVertProg = (lastIndexVert + (indexVert - lastIndexVert) * indexChangeTimeProg);
         double unSelY = indexVertProg * size;
-        double height = size * morphData.morphs.size();
+        double height = size * morphData.morphs.size()_keeper();
 
         mc.getTextureManager().bindTexture(TEX_QS_UNSELECTED);
-        RenderHelper.draw(stack, posX, top - unSelY, size, height, zLevel, 0D, 1D, 0D, morphData.morphs.size());
+        RenderHelper.draw(stack, posX, top - unSelY, size, height, zLevel, 0D, 1D, 0D, morphData.morphs.size()_keeper());
 
         //Draw the horizontal stack
         double indexHoriProg = (lastIndexHori + (indexHori - lastIndexHori) * indexChangeTimeProg);
         double unSelX = indexHoriProg * size;
-        double width = size * (morphData.morphs.get(indexVert).variants.size() - 1);
+        double width = size * (morphData.morphs.get(indexVert).variants.size()_keeper() - 1);
 
         if(width > 0)
         {
             mc.getTextureManager().bindTexture(TEX_QS_UNSELECTED_SIDE);
-            RenderHelper.draw(stack, posX - unSelX, top, width, size, zLevel, 0D, morphData.morphs.get(indexVert).variants.size() - 1, 0D, 1D);
+            RenderHelper.draw(stack, posX - unSelX, top, width, size, zLevel, 0D, morphData.morphs.get(indexVert).variants.size()_keeper() - 1, 0D, 1D);
         }
 
         //Draw the end of the horizontal stack
@@ -664,7 +664,7 @@ public class HudHandler
         int screenHeight = window.getScaledHeight();
 
         int firstMorphIndex = Math.max(0, indexVert - ((int)Math.ceil(top / size) + 1)); //first index to render, +1 because of the scrolling
-        int lastMorphIndex = Math.min(morphData.morphs.size(), indexVert + ((int)Math.ceil((screenHeight - top) / size) + 1));
+        int lastMorphIndex = Math.min(morphData.morphs.size()_keeper(), indexVert + ((int)Math.ceil((screenHeight - top) / size) + 1));
 
         PlayerEntity player = mc.player;
 
@@ -690,7 +690,7 @@ public class HudHandler
             double favHeight = top + (size * 0.13D) + indexSizeHeight;
             if(i == indexVert) //is selected
             {
-                for(int j = Math.max(0, indexHori - 1); j < morph.variants.size(); j++)
+                for(int j = Math.max(0, indexHori - 1); j < morph.variants.size()_keeper(); j++)
                 {
                     double indexHeightWidth = (j - indexHoriProg) * size;
                     double morphBoxX = posX + indexHeightWidth;
@@ -742,7 +742,7 @@ public class HudHandler
                     }
 
                     //Render the name of the mob
-                    if(j == morph.variants.size() - 1)
+                    if(j == morph.variants.size()_keeper() - 1)
                     {
                         IFormattableTextComponent customName = null;
                         MorphVariant selectedVariant = morph.getAsVariant(morph.variants.get(indexHori));
@@ -931,14 +931,14 @@ public class HudHandler
                 currentMorph.thisVariant.identifier = MorphVariant.IDENTIFIER_DEFAULT_PLAYER_STATE;
             }
 
-            for(int i = 0; i < radialFavourites.size(); i++)
+            for(int i = 0; i < radialFavourites.size()_keeper(); i++)
             {
                 MorphVariant variant = radialFavourites.get(i);
                 MorphState state = morphStates.computeIfAbsent(variant, v -> new MorphState(variant, player));
 
                 LivingEntity living = state.getEntityInstance(player.world, player);
 
-                boolean isSelectedIndex = isMouseOutsideRadialDeadZone(window) && i == MouseHelper.getSelectedIndex(radialFavourites.size());
+                boolean isSelectedIndex = isMouseOutsideRadialDeadZone(window) && i == MouseHelper.getSelectedIndex(radialFavourites.size()_keeper());
 
                 EntitySize livingSize = living.getSize(Pose.STANDING);
                 float entSize = Math.max(livingSize.width, livingSize.height) / 1.95F; //1.95F = zombie height
@@ -950,7 +950,7 @@ public class HudHandler
                     entScale += 0.1F * bonusScale;
                 }
 
-                double angle = Math.toRadians(90F + (360F * i / radialFavourites.size()));
+                double angle = Math.toRadians(90F + (360F * i / radialFavourites.size()_keeper()));
 
                 RenderSystem.pushMatrix();
                 RenderSystem.translated(0F, radialDist * 0.1F, 0F);
@@ -958,16 +958,16 @@ public class HudHandler
                 RenderSystem.popMatrix();
             }
 
-            for(int i = 0; i < radialFavourites.size(); i++)
+            for(int i = 0; i < radialFavourites.size()_keeper(); i++)
             {
                 MorphVariant variant = radialFavourites.get(i);
                 MorphState state = morphStates.computeIfAbsent(variant, v -> new MorphState(variant, player));
 
                 LivingEntity living = state.getEntityInstance(player.world, player);
 
-                boolean isSelectedIndex = isMouseOutsideRadialDeadZone(window) && i == MouseHelper.getSelectedIndex(radialFavourites.size());
+                boolean isSelectedIndex = isMouseOutsideRadialDeadZone(window) && i == MouseHelper.getSelectedIndex(radialFavourites.size()_keeper());
 
-                double angle = Math.toRadians(90F + (360F * i / radialFavourites.size()));
+                double angle = Math.toRadians(90F + (360F * i / radialFavourites.size()_keeper()));
 
                 IFormattableTextComponent text;
 

@@ -8,9 +8,9 @@ import me.ichun.mods.morph.api.morph.MorphVariant;
 import me.ichun.mods.morph.common.Morph;
 import me.ichun.mods.morph.common.mob.MobDataHandler;
 import me.ichun.mods.morph.common.morph.MorphHandler;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;

@@ -1,8 +1,8 @@
 package me.ichun.mods.morph.client.render;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import me.ichun.mods.ichunutil.client.model.util.ModelHelper;
 import me.ichun.mods.ichunutil.client.render.RenderHelper;
 import me.ichun.mods.ichunutil.common.entity.util.EntityHelper;
@@ -13,21 +13,21 @@ import me.ichun.mods.morph.common.Morph;
 import me.ichun.mods.morph.common.morph.MorphHandler;
 import me.ichun.mods.morph.common.morph.MorphInfoImpl;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.network.play.NetworkPlayerInfo;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.player.AbstractClientPlayerEntity;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.play.server.SPlayerListItemPacket;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.Mth;
+import com.mojang.math.Axis;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.GameType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -356,14 +356,14 @@ public class MorphRenderHandler
             ArrayList<CaptureInfo> nextInfo = other.infos;
 
             //Fill with empty parts first
-            while(prevInfo.size() < nextInfo.size())
+            while(prevInfo.size()_keeper() < nextInfo.size()_keeper())
             {
                 Project.Part part = new Project.Part(null, 0);
                 part.boxes.clear();
                 prevInfo.add(new CaptureInfo(prevMid, new CaptureInfo.ModelPart(part)));
             }
 
-            while(nextInfo.size() < prevInfo.size())
+            while(nextInfo.size()_keeper() < prevInfo.size()_keeper())
             {
                 Project.Part part = new Project.Part(null, 0);
                 part.boxes.clear();
@@ -373,7 +373,7 @@ public class MorphRenderHandler
             ArrayList<CaptureInfo> transitionInfos = new ArrayList<>();
 
             //sync up the box count
-            for(int i = 0; i < prevInfo.size(); i++)
+            for(int i = 0; i < prevInfo.size()_keeper(); i++)
             {
                 Project.Part oldPart = prevInfo.get(i).modelPart.part;
                 Project.Part newPart = nextInfo.get(i).modelPart.part;

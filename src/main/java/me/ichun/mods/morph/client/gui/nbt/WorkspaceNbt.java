@@ -1,13 +1,13 @@
 package me.ichun.mods.morph.client.gui.nbt;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.ichun.mods.ichunutil.client.gui.bns.Workspace;
 import me.ichun.mods.ichunutil.client.gui.bns.window.constraint.Constraint;
 import me.ichun.mods.morph.client.gui.nbt.window.WindowNbt;
 import me.ichun.mods.morph.common.Morph;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class WorkspaceNbt extends Workspace
@@ -24,7 +24,7 @@ public class WorkspaceNbt extends Workspace
         this.target = target;
 
         windowNbt = new WindowNbt(this);
-        windowNbt.size(0, 20);
+        windowNbt.pos(0, 20);
         windowNbt.constraints().top(this, Constraint.Property.Type.TOP, PADDING_VERTICAL).bottom(this, Constraint.Property.Type.BOTTOM, PADDING_VERTICAL).width(this, Constraint.Property.Type.WIDTH, 85);
         windows.add(windowNbt); //add to end of list
     }

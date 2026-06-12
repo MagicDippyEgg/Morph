@@ -3,9 +3,9 @@ package me.ichun.mods.morph.common.mode;
 import me.ichun.mods.morph.api.mob.trait.Trait;
 import me.ichun.mods.morph.api.mob.trait.ability.Ability;
 import me.ichun.mods.morph.api.morph.MorphVariant;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
