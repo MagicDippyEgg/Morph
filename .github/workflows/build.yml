@@ -2,9 +2,10 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "master", "main", "port-1.20.1-final" ]
+    branches: [ "master", "main", "1.20.1" ]
   pull_request:
-    branches: [ "master", "main", "port-1.20.1-final" ]
+    branches: [ "master", "main", "1.20.1" ]
+  workflow_dispatch:
 
 jobs:
   build:
