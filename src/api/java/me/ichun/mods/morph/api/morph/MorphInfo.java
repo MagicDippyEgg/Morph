@@ -1,23 +1,24 @@
 package me.ichun.mods.morph.api.morph;
 
 import me.ichun.mods.morph.api.MorphApi;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -27,12 +28,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class MorphInfo
 {
-    @CapabilityInject(MorphInfo.class)
-    public static Capability<MorphInfo> CAPABILITY_INSTANCE;
+    public static final Capability<MorphInfo> CAPABILITY_INSTANCE = net.minecraftforge.common.capabilities.CapabilityManager.get(new CapabilityToken<MorphInfo>() {});
     public static final ResourceLocation CAPABILITY_IDENTIFIER = new ResourceLocation("morph", "capability_morph_state");
     private static final AtomicInteger NEXT_ENTITY_ID = new AtomicInteger(-70000000);// -70 million. We reduce even further as we use this more, negative ent IDs prevent collision with real entities (with positive IDs starting with 0)
 
-    public final PlayerEntity player;
+    public final Player player;
 
     @Nullable
     public MorphState prevState;
@@ -48,7 +48,7 @@ public abstract class MorphInfo
 
     public boolean requested; //Never checked on server.
 
-    protected MorphInfo(PlayerEntity player)
+    protected MorphInfo(Player player)
     {
         this.player = player;
     }
@@ -67,13 +67,13 @@ public abstract class MorphInfo
             return 1.0F;
         }
 
-        return MathHelper.clamp((morphTime + partialTick) / morphingTime, 0F, 1F);
+        return Mth.clamp((morphTime + partialTick) / morphingTime, 0F, 1F);
     }
 
     public float getTransitionProgressLinear(float partialTick) //10 - 60 - 10 : fade to black - transition - fade to ent
     {
         float morphProgress = getMorphProgress(partialTick);
-        return MathHelper.clamp((morphProgress - 0.125F) / 0.75F, 0F, 1F);
+        return Mth.clamp((morphProgress - 0.125F) / 0.75F, 0F, 1F);
     }
 
     public float getTransitionProgressSine(float partialTick)
@@ -81,12 +81,12 @@ public abstract class MorphInfo
         return sineifyProgress(getTransitionProgressLinear(partialTick));
     }
 
-    public EntitySize getActiveMorphSizeByPose(Pose pose)
+    public EntityDimensions getActiveMorphDimensionsByPose(Pose pose)
     {
-        return getActiveMorphEntity().getSize(pose);
+        return getActiveMorphEntity().getDimensions(pose);
     }
 
-    public EntitySize getMorphSize(float partialTick)
+    public EntityDimensions getMorphDimensions(float partialTick)
     {
         float morphProgress = getMorphProgress(partialTick);
         if(morphProgress < 1F)
@@ -94,37 +94,38 @@ public abstract class MorphInfo
             float transitionProgress = getTransitionProgressSine(partialTick);
             if(transitionProgress <= 0F)
             {
-                LivingEntity prevInstance = prevState.getEntityInstance(player.world, player);
+                LivingEntity prevInstance = prevState.getEntityInstance(player.level(), player);
                 prevInstance.setPose(player.getPose());
-                prevInstance.recalculateSize();
-                return prevInstance.size;
+                // In 1.20.1 recalculateSize() is called refreshDimensions()
+                prevInstance.refreshDimensions();
+                return prevInstance.getDimensions(player.getPose());
             }
             else if(transitionProgress >= 1F)
             {
-                LivingEntity nextInstance = nextState.getEntityInstance(player.world, player);
+                LivingEntity nextInstance = nextState.getEntityInstance(player.level(), player);
                 nextInstance.setPose(player.getPose());
-                nextInstance.recalculateSize();
-                return nextInstance.size;
+                nextInstance.refreshDimensions();
+                return nextInstance.getDimensions(player.getPose());
             }
             else
             {
-                LivingEntity prevInstance = prevState.getEntityInstance(player.world, player);
+                LivingEntity prevInstance = prevState.getEntityInstance(player.level(), player);
                 prevInstance.setPose(player.getPose());
-                prevInstance.recalculateSize();
-                LivingEntity nextInstance = nextState.getEntityInstance(player.world, player);
+                prevInstance.refreshDimensions();
+                LivingEntity nextInstance = nextState.getEntityInstance(player.level(), player);
                 nextInstance.setPose(player.getPose());
-                nextInstance.recalculateSize();
-                EntitySize prevSize = prevInstance.size;
-                EntitySize nextSize = nextInstance.size;
-                return EntitySize.flexible(prevSize.width + (nextSize.width - prevSize.width) * transitionProgress, prevSize.height + (nextSize.height - prevSize.height) * transitionProgress);
+                nextInstance.refreshDimensions();
+                EntityDimensions prevSize = prevInstance.getDimensions(player.getPose());
+                EntityDimensions nextSize = nextInstance.getDimensions(player.getPose());
+                return EntityDimensions.scalable(prevSize.width + (nextSize.width - prevSize.width) * transitionProgress, prevSize.height + (nextSize.height - prevSize.height) * transitionProgress);
             }
         }
         else
         {
-            LivingEntity nextInstance = nextState.getEntityInstance(player.world, player);
+            LivingEntity nextInstance = nextState.getEntityInstance(player.level(), player);
             nextInstance.setPose(player.getPose());
-            nextInstance.recalculateSize();
-            return nextInstance.size;
+            nextInstance.refreshDimensions();
+            return nextInstance.getDimensions(player.getPose());
         }
     }
 
@@ -136,22 +137,22 @@ public abstract class MorphInfo
             float transitionProgress = getTransitionProgressSine(partialTick);
             if(transitionProgress <= 0F)
             {
-                return prevState.getEntityInstance(player.world, player).getEyeHeight();
+                return prevState.getEntityInstance(player.level(), player).getEyeHeight();
             }
             else if(transitionProgress >= 1F)
             {
-                return nextState.getEntityInstance(player.world, player).getEyeHeight();
+                return nextState.getEntityInstance(player.level(), player).getEyeHeight();
             }
             else
             {
-                float prevHeight = prevState.getEntityInstance(player.world, player).getEyeHeight();
-                float nextHeight = nextState.getEntityInstance(player.world, player).getEyeHeight();
+                float prevHeight = prevState.getEntityInstance(player.level(), player).getEyeHeight();
+                float nextHeight = nextState.getEntityInstance(player.level(), player).getEyeHeight();
                 return prevHeight + (nextHeight - prevHeight) * transitionProgress;
             }
         }
         else
         {
-            return nextState.getEntityInstance(player.world, player).getEyeHeight();
+            return nextState.getEntityInstance(player.level(), player).getEyeHeight();
         }
     }
 
@@ -211,7 +212,7 @@ public abstract class MorphInfo
         }
         setNextState(state);
         playSoundTime = -1; //default
-        player.recalculateSize();
+        player.refreshDimensions();
     }
 
     public boolean isCurrentlyThisVariant(@Nonnull MorphVariant.Variant variant)
@@ -219,16 +220,16 @@ public abstract class MorphInfo
         return (nextState != null && nextState.variant.thisVariant.identifier.equals(variant.identifier) || !isMorphed() && variant.identifier.equals(MorphVariant.IDENTIFIER_DEFAULT_PLAYER_STATE));
     }
 
-    public CompoundNBT write(CompoundNBT tag)
+    public CompoundTag write(CompoundTag tag)
     {
         if(prevState != null)
         {
-            tag.put("prevState", prevState.write(new CompoundNBT()));
+            tag.put("prevState", prevState.write(new CompoundTag()));
         }
 
         if(nextState != null)
         {
-            tag.put("nextState", nextState.write(new CompoundNBT()));
+            tag.put("nextState", nextState.write(new CompoundTag()));
         }
 
         tag.putInt("morphTime", morphTime);
@@ -236,7 +237,7 @@ public abstract class MorphInfo
         return tag;
     }
 
-    public void read(CompoundNBT tag)
+    public void read(CompoundTag tag)
     {
         playSoundTime = -1; //default
 
@@ -280,18 +281,18 @@ public abstract class MorphInfo
         morphTime = tag.getInt("morphTime");
         morphingTime = tag.getInt("morphingTime");
 
-        player.recalculateSize();
+        player.refreshDimensions();
     }
 
     public LivingEntity getActiveMorphEntity()
     {
         if(getMorphProgress(1F) < 0.5F)
         {
-            return prevState.getEntityInstance(player.world, player);
+            return prevState != null ? prevState.getEntityInstance(player.level(), player) : null;
         }
         else if(nextState != null)
         {
-            return nextState.getEntityInstance(player.world, player);
+            return nextState.getEntityInstance(player.level(), player);
         }
         return null;
     }
@@ -314,17 +315,17 @@ public abstract class MorphInfo
             float transitionProg = getTransitionProgressLinear(partialTick);
             if(transitionProg <= 0F)
             {
-                return prevState.getEntityInstance(player.world, player);
+                return prevState != null ? prevState.getEntityInstance(player.level(), player) : player;
             }
             else if(transitionProg >= 1F)
             {
-                return nextState.getEntityInstance(player.world, player);
+                return nextState != null ? nextState.getEntityInstance(player.level(), player) : player;
             }
             return null; //mid transition, no active appearance.
         }
         else if(nextState != null) //is morphed
         {
-            return nextState.getEntityInstance(player.world, player);
+            return nextState.getEntityInstance(player.level(), player);
         }
         else
         {
@@ -389,7 +390,7 @@ public abstract class MorphInfo
 
     public abstract float getSoundPitch();
 
-    public static class CapProvider implements ICapabilitySerializable<CompoundNBT>
+    public static class CapProvider implements ICapabilitySerializable<CompoundTag>
     {
         private final MorphInfo state;
         private final LazyOptional<MorphInfo> optional;
@@ -412,13 +413,13 @@ public abstract class MorphInfo
         }
 
         @Override
-        public CompoundNBT serializeNBT()
+        public CompoundTag serializeNBT()
         {
-            return state.write(new CompoundNBT());
+            return state.write(new CompoundTag());
         }
 
         @Override
-        public void deserializeNBT(CompoundNBT nbt)
+        public void deserializeNBT(CompoundTag nbt)
         {
             state.read(nbt);
         }

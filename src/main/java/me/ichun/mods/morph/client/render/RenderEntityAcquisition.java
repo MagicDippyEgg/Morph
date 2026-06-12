@@ -1,20 +1,20 @@
 package me.ichun.mods.morph.client.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import me.ichun.mods.morph.client.entity.EntityAcquisition;
 import me.ichun.mods.morph.client.model.ModelAcquisition;
 import me.ichun.mods.morph.common.Morph;
 import me.ichun.mods.morph.common.morph.MorphHandler;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.ClippingHelper;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.LivingRenderer;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -59,7 +59,7 @@ public class RenderEntityAcquisition extends EntityRenderer<EntityAcquisition>
 
                 MorphRenderHandler.currentCapture = null;
 
-                acquisition.maxRequiredTendrils = acquisition.acquiredCapture.infos.size();
+                acquisition.maxRequiredTendrils = acquisition.acquiredCapture.infos.size()_keeper();
             }
 
             float skinAlpha = MathHelper.clamp((acquisition.age + partialTicks) / 10, 0F, 1F);

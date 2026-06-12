@@ -1,6 +1,6 @@
 package me.ichun.mods.morph.client.gui.biomass;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.ichun.mods.ichunutil.client.gui.bns.Workspace;
 import me.ichun.mods.ichunutil.client.gui.bns.window.constraint.Constraint;
@@ -36,12 +36,12 @@ public class WorkspaceMorph extends Workspace
         super(lastScreen, new TranslationTextComponent("morph.gui.workspace.title"), Morph.configClient.guiMinecraftStyle);
 
         windowHeader = new WindowHeader(this);
-        windowHeader.size(0, 20);
+        windowHeader.pos(0, 20);
         windowHeader.constraints().top(this, Constraint.Property.Type.TOP, PADDING_VERTICAL).width(this, Constraint.Property.Type.WIDTH, 60);
         windows.add(windowHeader); //add to end of list
 
         windowSidebar = new WindowSidebar(this);
-        windowSidebar.size(22, 0);
+        windowSidebar.pos(22, 0);
         windowSidebar.constraints().left(windowHeader, Constraint.Property.Type.LEFT, 0).top(windowHeader, Constraint.Property.Type.BOTTOM, PADDING_WINDOW).bottom(this, Constraint.Property.Type.BOTTOM, PADDING_VERTICAL);
         windows.add(windowSidebar); //add to end of list
 

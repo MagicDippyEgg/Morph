@@ -1,6 +1,6 @@
 package me.ichun.mods.morph.mixin;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import me.ichun.mods.morph.common.Morph;
 import net.minecraftforge.client.gui.ForgeIngameGui;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,7 +20,7 @@ public abstract class ForgeIngameGuiMixin
         }
     }
 
-    @Inject(method = "renderIngameGui", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/client/gui/ForgeIngameGui;renderSleepFade(IILcom/mojang/blaze3d/matrix/MatrixStack;)V"))
+    @Inject(method = "renderIngameGui", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/client/gui/ForgeIngameGui;renderSleepFade(IILcom.mojang.blaze3d.vertex.PoseStack;)V"))
     public void renderIngameGuiPost(MatrixStack mStack, float partialTicks, CallbackInfo ci)
     {
         if(Morph.eventHandlerClient.hudHandler != null)

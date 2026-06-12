@@ -1,27 +1,27 @@
 package me.ichun.mods.morph.client.entity;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import me.ichun.mods.ichunutil.client.render.RenderHelper;
 import me.ichun.mods.ichunutil.client.tracker.ClientEntityTracker;
 import me.ichun.mods.ichunutil.common.entity.util.EntityHelper;
 import me.ichun.mods.morph.client.render.MorphRenderHandler;
 import me.ichun.mods.morph.common.Morph;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.settings.PointOfView;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.IPacket;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.Mth;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.World;
+import com.mojang.math.Axis;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkHooks;
@@ -126,7 +126,7 @@ public class EntityAcquisition extends Entity
 
             if(isMorphAcquisition)
             {
-                if(tendrils.size() < 5 && age % 2 == 0)
+                if(tendrils.size()_keeper() < 5 && age % 2 == 0)
                 {
                     tendrils.add(new Tendril(null).headTowards(getTargetPos(), false));
                     allDone = false;//do not remove, we're not done yet
@@ -141,7 +141,7 @@ public class EntityAcquisition extends Entity
             }
             else
             {
-                if(tendrils.size() < maxRequiredTendrils && !acquiredCapture.infos.isEmpty() && age % 3 == 0)
+                if(tendrils.size()_keeper() < maxRequiredTendrils && !acquiredCapture.infos.isEmpty() && age % 3 == 0)
                 {
                     tendrils.add(new Tendril(null).headTowards(getTargetPos(), true));
                     allDone = false;//do not remove, we're not done yet
@@ -348,10 +348,10 @@ public class EntityAcquisition extends Entity
                             else if(!acquiredCapture.infos.isEmpty())
                             {
                                 child.capture = new MorphRenderHandler.ModelRendererCapture();
-                                int count = (int)Math.ceil(Math.max(acquiredCapture.infos.size() / 10F, 1));
+                                int count = (int)Math.ceil(Math.max(acquiredCapture.infos.size()_keeper() / 10F, 1));
                                 for(int x = 0; x < count && !acquiredCapture.infos.isEmpty(); x++)
                                 {
-                                    int i = rand.nextInt(acquiredCapture.infos.size());
+                                    int i = rand.nextInt(acquiredCapture.infos.size()_keeper());
                                     child.capture.infos.add(acquiredCapture.infos.get(i));
                                     acquiredCapture.infos.remove(i);
                                     if(x > 0)

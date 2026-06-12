@@ -1,0 +1,518 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.5/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+
+> Configure project :
+MixinGradle is skipping eclipse integration, extension not found
+Java: 17.0.19 JVM: 17.0.19+10-1-24.04.2-Ubuntu(Ubuntu) Arch: amd64
+files(...) dependencies are not deobfuscated. Use a flatDir repository instead: https://docs.gradle.org/current/userguide/declaring_repositories.html#sub:flat_dir_resolver
+Cannot deobfuscate dependency of type DefaultSelfResolvingDependency_Decorated, using obfuscated version!
+Path for java installation '/usr/lib/jvm/openjdk-21' (Common Linux Locations) does not contain a java executable
+
+> Task :downloadMcpConfig
+> Task :extractSrg UP-TO-DATE
+> Task :createMcpToSrg UP-TO-DATE
+
+> Task :compileJava FAILED
+/app/src/main/java/me/ichun/mods/morph/common/morph/MorphInfoImpl.java:90: error: ';' expected
+                for(int i = prevTraits.size()_keeper() - 1; i >= 0; i--)
+                                             ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/MorphInfoImpl.java:90: error: not a statement
+                for(int i = prevTraits.size()_keeper() - 1; i >= 0; i--)
+                                                              ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/MorphInfoImpl.java:90: error: ')' expected
+                for(int i = prevTraits.size()_keeper() - 1; i >= 0; i--)
+                                                                  ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/MorphInfoImpl.java:90: error: ';' expected
+                for(int i = prevTraits.size()_keeper() - 1; i >= 0; i--)
+                                                                       ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/save/MorphSavedData.java:38: error: ')' expected
+        tag.putInt("count", playerMorphs.size()_keeper());
+                                               ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/save/MorphSavedData.java:38: error: ';' expected
+        tag.putInt("count", playerMorphs.size()_keeper());
+                                                        ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/save/PlayerMorphData.java:103: error: ')' expected
+        tag.putInt("morphCount", morphs.size()_keeper());
+                                              ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/save/PlayerMorphData.java:103: error: ';' expected
+        tag.putInt("morphCount", morphs.size()_keeper());
+                                                       ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/save/PlayerMorphData.java:104: error: ';' expected
+        for(int i = 0; i < morphs.size()_keeper(); i++)
+                                        ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/save/PlayerMorphData.java:104: error: ')' expected
+        for(int i = 0; i < morphs.size()_keeper(); i++)
+                                                 ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/save/PlayerMorphData.java:104: error: ';' expected
+        for(int i = 0; i < morphs.size()_keeper(); i++)
+                                                      ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/save/PlayerMorphData.java:111: error: ')' expected
+        tag.putInt("upgradeCount", upgrades.size()_keeper());
+                                                  ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/save/PlayerMorphData.java:111: error: ';' expected
+        tag.putInt("upgradeCount", upgrades.size()_keeper());
+                                                           ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/save/PlayerMorphData.java:112: error: ';' expected
+        for(int i = 0; i < upgrades.size()_keeper(); i++)
+                                          ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/save/PlayerMorphData.java:112: error: ')' expected
+        for(int i = 0; i < upgrades.size()_keeper(); i++)
+                                                   ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/save/PlayerMorphData.java:112: error: ';' expected
+        for(int i = 0; i < upgrades.size()_keeper(); i++)
+                                                        ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/nbt/NbtHandler.java:70: error: ')' expected
+        Morph.LOGGER.info("Loaded {} NBT Modifier(s)", NBT_MODIFIERS.size()_keeper() + NBT_MODIFIERS_INTERFACES.size()_keeper());
+                                                                           ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/nbt/NbtHandler.java:70: error: not a statement
+        Morph.LOGGER.info("Loaded {} NBT Modifier(s)", NBT_MODIFIERS.size()_keeper() + NBT_MODIFIERS_INTERFACES.size()_keeper());
+                                                                                     ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/nbt/NbtHandler.java:70: error: ';' expected
+        Morph.LOGGER.info("Loaded {} NBT Modifier(s)", NBT_MODIFIERS.size()_keeper() + NBT_MODIFIERS_INTERFACES.size()_keeper());
+                                                                                                                      ^
+/app/src/main/java/me/ichun/mods/morph/common/morph/nbt/NbtHandler.java:70: error: ';' expected
+        Morph.LOGGER.info("Loaded {} NBT Modifier(s)", NBT_MODIFIERS.size()_keeper() + NBT_MODIFIERS_INTERFACES.size()_keeper());
+                                                                                                                               ^
+/app/src/main/java/me/ichun/mods/morph/common/config/ConfigServer.java:125: error: ')' expected
+            if(split.size()_keeper() < 2)
+                           ^
+/app/src/main/java/me/ichun/mods/morph/common/config/ConfigServer.java:125: error: not a statement
+            if(split.size()_keeper() < 2)
+                                     ^
+/app/src/main/java/me/ichun/mods/morph/common/config/ConfigServer.java:125: error: ';' expected
+            if(split.size()_keeper() < 2)
+                                        ^
+/app/src/main/java/me/ichun/mods/morph/common/config/ConfigServer.java:135: error: ')' expected
+            if(split.size()_keeper() == 3)
+                           ^
+/app/src/main/java/me/ichun/mods/morph/common/config/ConfigServer.java:135: error: not a statement
+            if(split.size()_keeper() == 3)
+                                     ^
+/app/src/main/java/me/ichun/mods/morph/common/config/ConfigServer.java:135: error: ';' expected
+            if(split.size()_keeper() == 3)
+                                         ^
+/app/src/main/java/me/ichun/mods/morph/common/mob/MobDataHandler.java:67: error: ')' expected
+        Morph.LOGGER.info("Loaded {} Mob Data(s) from {} files", MOB_DATA.size()_keeper(), filesProcessed);
+                                                                                ^
+/app/src/main/java/me/ichun/mods/morph/common/mob/MobDataHandler.java:67: error: ';' expected
+        Morph.LOGGER.info("Loaded {} Mob Data(s) from {} files", MOB_DATA.size()_keeper(), filesProcessed);
+                                                                                         ^
+/app/src/main/java/me/ichun/mods/morph/common/mob/MobDataHandler.java:67: error: not a statement
+        Morph.LOGGER.info("Loaded {} Mob Data(s) from {} files", MOB_DATA.size()_keeper(), filesProcessed);
+                                                                                           ^
+/app/src/main/java/me/ichun/mods/morph/common/mob/MobDataHandler.java:67: error: ';' expected
+        Morph.LOGGER.info("Loaded {} Mob Data(s) from {} files", MOB_DATA.size()_keeper(), filesProcessed);
+                                                                                                         ^
+/app/src/main/java/me/ichun/mods/morph/common/command/CommandMorph.java:208: error: ')' expected
+                    if(i >= morph.variants.size()_keeper())
+                                                 ^
+/app/src/main/java/me/ichun/mods/morph/common/command/CommandMorph.java:208: error: ';' expected
+                    if(i >= morph.variants.size()_keeper())
+                                                          ^
+/app/src/main/java/me/ichun/mods/morph/common/command/CommandMorph.java:227: error: ';' expected
+                    for(int i1 = morph.variants.size()_keeper() - 1; i1 >= 0; i1--)
+                                                      ^
+/app/src/main/java/me/ichun/mods/morph/common/command/CommandMorph.java:227: error: not a statement
+                    for(int i1 = morph.variants.size()_keeper() - 1; i1 >= 0; i1--)
+                                                                        ^
+/app/src/main/java/me/ichun/mods/morph/common/command/CommandMorph.java:227: error: ')' expected
+                    for(int i1 = morph.variants.size()_keeper() - 1; i1 >= 0; i1--)
+                                                                            ^
+/app/src/main/java/me/ichun/mods/morph/common/command/CommandMorph.java:227: error: ';' expected
+                    for(int i1 = morph.variants.size()_keeper() - 1; i1 >= 0; i1--)
+                                                                                  ^
+/app/src/main/java/me/ichun/mods/morph/common/packet/PacketSessionSync.java:27: error: ')' expected
+        buf.writeInt(upgrades.size()_keeper());
+                                    ^
+/app/src/main/java/me/ichun/mods/morph/common/packet/PacketSessionSync.java:27: error: ';' expected
+        buf.writeInt(upgrades.size()_keeper());
+                                             ^
+/app/src/main/java/me/ichun/mods/morph/common/packet/PacketUpdateBiomassUpgrades.java:27: error: ')' expected
+        buf.writeInt(upgrades.size()_keeper());
+                                    ^
+/app/src/main/java/me/ichun/mods/morph/common/packet/PacketUpdateBiomassUpgrades.java:27: error: ';' expected
+        buf.writeInt(upgrades.size()_keeper());
+                                             ^
+/app/src/main/java/me/ichun/mods/morph/common/biomass/BiomassUpgradeHandler.java:73: error: ')' expected
+        Morph.LOGGER.info("Loaded {} Biomass Upgrade(s)", BIOMASS_UPGRADES.size()_keeper());
+                                                                                 ^
+/app/src/main/java/me/ichun/mods/morph/common/biomass/BiomassUpgradeHandler.java:73: error: ';' expected
+        Morph.LOGGER.info("Loaded {} Biomass Upgrade(s)", BIOMASS_UPGRADES.size()_keeper());
+                                                                                          ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:226: error: ';' expected
+            for(int i = 0; i < morphData.morphs.size()_keeper(); i++)
+                                                      ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:226: error: ')' expected
+            for(int i = 0; i < morphData.morphs.size()_keeper(); i++)
+                                                               ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:226: error: ';' expected
+            for(int i = 0; i < morphData.morphs.size()_keeper(); i++)
+                                                                    ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:233: error: ';' expected
+                    for(int i1 = 0; i1 < variant.variants.size()_keeper(); i1++)
+                                                                ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:233: error: ')' expected
+                    for(int i1 = 0; i1 < variant.variants.size()_keeper(); i1++)
+                                                                         ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:233: error: ';' expected
+                    for(int i1 = 0; i1 < variant.variants.size()_keeper(); i1++)
+                                                                               ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:239: error: ';' expected
+                            lastIndexHori = variant.variants.size()_keeper() - 1;
+                                                                   ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:239: error: not a statement
+                            lastIndexHori = variant.variants.size()_keeper() - 1;
+                                                                             ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:452: error: ';' expected
+        indexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
+                                                                   ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:452: error: not a statement
+        indexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
+                                                                             ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:464: error: ')' expected
+                MorphVariant variant = radialFavourites.get(MouseHelper.getSelectedIndex(radialFavourites.size()_keeper()));
+                                                                                                                ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:464: error: ';' expected
+                MorphVariant variant = radialFavourites.get(MouseHelper.getSelectedIndex(radialFavourites.size()_keeper()));
+                                                                                                                         ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:533: error: ')' expected
+                if(indexHori >= morphData.morphs.get(indexVert).variants.size()_keeper())
+                                                                               ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:533: error: ';' expected
+                if(indexHori >= morphData.morphs.get(indexVert).variants.size()_keeper())
+                                                                                        ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:543: error: ')' expected
+                if(indexVert >= morphData.morphs.size()_keeper())
+                                                       ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:543: error: ';' expected
+                if(indexVert >= morphData.morphs.size()_keeper())
+                                                                ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:548: error: ')' expected
+                if(morphData.morphs.size()_keeper() > 1)
+                                          ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:548: error: not a statement
+                if(morphData.morphs.size()_keeper() > 1)
+                                                    ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:548: error: ';' expected
+                if(morphData.morphs.size()_keeper() > 1)
+                                                       ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:550: error: ';' expected
+                    lastIndexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
+                                                                                   ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:550: error: not a statement
+                    lastIndexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
+                                                                                             ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:564: error: ';' expected
+                    indexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
+                                                                               ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:564: error: not a statement
+                    indexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
+                                                                                         ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:574: error: ';' expected
+                    indexVert = morphData.morphs.size()_keeper() - 1;
+                                                       ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:574: error: not a statement
+                    indexVert = morphData.morphs.size()_keeper() - 1;
+                                                                 ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:577: error: ')' expected
+                if(morphData.morphs.size()_keeper() > 1)
+                                          ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:577: error: not a statement
+                if(morphData.morphs.size()_keeper() > 1)
+                                                    ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:577: error: ';' expected
+                if(morphData.morphs.size()_keeper() > 1)
+                                                       ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:579: error: ';' expected
+                    lastIndexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
+                                                                                   ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:579: error: not a statement
+                    lastIndexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
+                                                                                             ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:590: error: ')' expected
+        if(indexVert >= morphData.morphs.size()_keeper())
+                                               ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:590: error: ';' expected
+        if(indexVert >= morphData.morphs.size()_keeper())
+                                                        ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:594: error: ';' expected
+            lastIndexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
+                                                                           ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:594: error: not a statement
+            lastIndexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
+                                                                                     ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:599: error: ';' expected
+            indexVert = morphData.morphs.size()_keeper() - 1;
+                                               ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:599: error: not a statement
+            indexVert = morphData.morphs.size()_keeper() - 1;
+                                                         ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:601: error: ';' expected
+            lastIndexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
+                                                                           ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:601: error: not a statement
+            lastIndexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
+                                                                                     ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:597: error: 'else' without 'if'
+        else if(indexVert < 0)
+        ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:605: error: ')' expected
+        if(indexHori >= morphData.morphs.get(indexVert).variants.size()_keeper())
+                                                                       ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:605: error: ';' expected
+        if(indexHori >= morphData.morphs.get(indexVert).variants.size()_keeper())
+                                                                                ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:611: error: ';' expected
+            indexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
+                                                                       ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:611: error: not a statement
+            indexHori = morphData.morphs.get(indexVert).variants.size()_keeper() - 1;
+                                                                                 ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:609: error: 'else' without 'if'
+        else if(indexHori < 0)
+        ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:640: error: ';' expected
+        double height = size * morphData.morphs.size()_keeper();
+                                                      ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:643: error: ')' expected
+        RenderHelper.draw(stack, posX, top - unSelY, size, height, zLevel, 0D, 1D, 0D, morphData.morphs.size()_keeper());
+                                                                                                              ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:643: error: ';' expected
+        RenderHelper.draw(stack, posX, top - unSelY, size, height, zLevel, 0D, 1D, 0D, morphData.morphs.size()_keeper());
+                                                                                                                       ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:648: error: ')' expected
+        double width = size * (morphData.morphs.get(indexVert).variants.size()_keeper() - 1);
+                                                                              ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:648: error: not a statement
+        double width = size * (morphData.morphs.get(indexVert).variants.size()_keeper() - 1);
+                                                                                        ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:648: error: ';' expected
+        double width = size * (morphData.morphs.get(indexVert).variants.size()_keeper() - 1);
+                                                                                           ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:653: error: ')' expected
+            RenderHelper.draw(stack, posX - unSelX, top, width, size, zLevel, 0D, morphData.morphs.get(indexVert).variants.size()_keeper() - 1, 0D, 1D);
+                                                                                                                                 ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:653: error: not a statement
+            RenderHelper.draw(stack, posX - unSelX, top, width, size, zLevel, 0D, morphData.morphs.get(indexVert).variants.size()_keeper() - 1, 0D, 1D);
+                                                                                                                                           ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:653: error: ';' expected
+            RenderHelper.draw(stack, posX - unSelX, top, width, size, zLevel, 0D, morphData.morphs.get(indexVert).variants.size()_keeper() - 1, 0D, 1D);
+                                                                                                                                              ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:667: error: ')' expected
+        int lastMorphIndex = Math.min(morphData.morphs.size()_keeper(), indexVert + ((int)Math.ceil((screenHeight - top) / size) + 1));
+                                                             ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:667: error: ';' expected
+        int lastMorphIndex = Math.min(morphData.morphs.size()_keeper(), indexVert + ((int)Math.ceil((screenHeight - top) / size) + 1));
+                                                                      ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:667: error: not a statement
+        int lastMorphIndex = Math.min(morphData.morphs.size()_keeper(), indexVert + ((int)Math.ceil((screenHeight - top) / size) + 1));
+                                                                                  ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:667: error: ';' expected
+        int lastMorphIndex = Math.min(morphData.morphs.size()_keeper(), indexVert + ((int)Math.ceil((screenHeight - top) / size) + 1));
+                                                                                                                                     ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:693: error: ';' expected
+                for(int j = Math.max(0, indexHori - 1); j < morph.variants.size()_keeper(); j++)
+                                                                                 ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:693: error: ')' expected
+                for(int j = Math.max(0, indexHori - 1); j < morph.variants.size()_keeper(); j++)
+                                                                                          ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:693: error: ';' expected
+                for(int j = Math.max(0, indexHori - 1); j < morph.variants.size()_keeper(); j++)
+                                                                                               ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:745: error: ')' expected
+                    if(j == morph.variants.size()_keeper() - 1)
+                                                 ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:745: error: not a statement
+                    if(j == morph.variants.size()_keeper() - 1)
+                                                           ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:745: error: ';' expected
+                    if(j == morph.variants.size()_keeper() - 1)
+                                                              ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:934: error: ';' expected
+            for(int i = 0; i < radialFavourites.size()_keeper(); i++)
+                                                      ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:934: error: ')' expected
+            for(int i = 0; i < radialFavourites.size()_keeper(); i++)
+                                                               ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:934: error: ';' expected
+            for(int i = 0; i < radialFavourites.size()_keeper(); i++)
+                                                                    ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:941: error: ')' expected
+                boolean isSelectedIndex = isMouseOutsideRadialDeadZone(window) && i == MouseHelper.getSelectedIndex(radialFavourites.size()_keeper());
+                                                                                                                                           ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:941: error: ';' expected
+                boolean isSelectedIndex = isMouseOutsideRadialDeadZone(window) && i == MouseHelper.getSelectedIndex(radialFavourites.size()_keeper());
+                                                                                                                                                    ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:953: error: ')' expected
+                double angle = Math.toRadians(90F + (360F * i / radialFavourites.size()_keeper()));
+                                                                                       ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:953: error: ';' expected
+                double angle = Math.toRadians(90F + (360F * i / radialFavourites.size()_keeper()));
+                                                                                                ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:961: error: ';' expected
+            for(int i = 0; i < radialFavourites.size()_keeper(); i++)
+                                                      ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:961: error: ')' expected
+            for(int i = 0; i < radialFavourites.size()_keeper(); i++)
+                                                               ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:961: error: ';' expected
+            for(int i = 0; i < radialFavourites.size()_keeper(); i++)
+                                                                    ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:968: error: ')' expected
+                boolean isSelectedIndex = isMouseOutsideRadialDeadZone(window) && i == MouseHelper.getSelectedIndex(radialFavourites.size()_keeper());
+                                                                                                                                           ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:968: error: ';' expected
+                boolean isSelectedIndex = isMouseOutsideRadialDeadZone(window) && i == MouseHelper.getSelectedIndex(radialFavourites.size()_keeper());
+                                                                                                                                                    ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:970: error: ')' expected
+                double angle = Math.toRadians(90F + (360F * i / radialFavourites.size()_keeper()));
+                                                                                       ^
+/app/src/main/java/me/ichun/mods/morph/client/core/HudHandler.java:970: error: ';' expected
+                double angle = Math.toRadians(90F + (360F * i / radialFavourites.size()_keeper()));
+                                                                                                ^
+/app/src/main/java/me/ichun/mods/morph/client/core/EventHandlerClient.java:123: error: ';' expected
+            for(int i = 0; i < morphs.size()_keeper(); i++)
+                                            ^
+/app/src/main/java/me/ichun/mods/morph/client/core/EventHandlerClient.java:123: error: ')' expected
+            for(int i = 0; i < morphs.size()_keeper(); i++)
+                                                     ^
+/app/src/main/java/me/ichun/mods/morph/client/core/EventHandlerClient.java:123: error: ';' expected
+            for(int i = 0; i < morphs.size()_keeper(); i++)
+                                                          ^
+/app/src/main/java/me/ichun/mods/morph/client/render/MorphRenderHandler.java:359: error: ')' expected
+            while(prevInfo.size()_keeper() < nextInfo.size()_keeper())
+                                 ^
+/app/src/main/java/me/ichun/mods/morph/client/render/MorphRenderHandler.java:359: error: not a statement
+            while(prevInfo.size()_keeper() < nextInfo.size()_keeper())
+                                           ^
+/app/src/main/java/me/ichun/mods/morph/client/render/MorphRenderHandler.java:359: error: ';' expected
+            while(prevInfo.size()_keeper() < nextInfo.size()_keeper())
+                                                            ^
+/app/src/main/java/me/ichun/mods/morph/client/render/MorphRenderHandler.java:359: error: ';' expected
+            while(prevInfo.size()_keeper() < nextInfo.size()_keeper())
+                                                                     ^
+/app/src/main/java/me/ichun/mods/morph/client/render/MorphRenderHandler.java:366: error: ')' expected
+            while(nextInfo.size()_keeper() < prevInfo.size()_keeper())
+                                 ^
+/app/src/main/java/me/ichun/mods/morph/client/render/MorphRenderHandler.java:366: error: not a statement
+            while(nextInfo.size()_keeper() < prevInfo.size()_keeper())
+                                           ^
+/app/src/main/java/me/ichun/mods/morph/client/render/MorphRenderHandler.java:366: error: ';' expected
+            while(nextInfo.size()_keeper() < prevInfo.size()_keeper())
+                                                            ^
+/app/src/main/java/me/ichun/mods/morph/client/render/MorphRenderHandler.java:366: error: ';' expected
+            while(nextInfo.size()_keeper() < prevInfo.size()_keeper())
+                                                                     ^
+/app/src/main/java/me/ichun/mods/morph/client/render/MorphRenderHandler.java:376: error: ';' expected
+            for(int i = 0; i < prevInfo.size()_keeper(); i++)
+                                              ^
+/app/src/main/java/me/ichun/mods/morph/client/render/MorphRenderHandler.java:376: error: ')' expected
+            for(int i = 0; i < prevInfo.size()_keeper(); i++)
+                                                       ^
+/app/src/main/java/me/ichun/mods/morph/client/render/MorphRenderHandler.java:376: error: ';' expected
+            for(int i = 0; i < prevInfo.size()_keeper(); i++)
+                                                            ^
+/app/src/main/java/me/ichun/mods/morph/client/render/hand/HandHandler.java:434: error: ')' expected
+        Morph.LOGGER.info("Loaded {} Hand Info(s)", MODEL_HAND_INFO.size()_keeper());
+                                                                          ^
+/app/src/main/java/me/ichun/mods/morph/client/render/hand/HandHandler.java:434: error: ';' expected
+        Morph.LOGGER.info("Loaded {} Hand Info(s)", MODEL_HAND_INFO.size()_keeper());
+                                                                                   ^
+/app/src/main/java/me/ichun/mods/morph/client/render/RenderEntityAcquisition.java:62: error: ';' expected
+                acquisition.maxRequiredTendrils = acquisition.acquiredCapture.infos.size()_keeper();
+                                                                                          ^
+/app/src/main/java/me/ichun/mods/morph/client/entity/EntityAcquisition.java:129: error: ')' expected
+                if(tendrils.size()_keeper() < 5 && age % 2 == 0)
+                                  ^
+/app/src/main/java/me/ichun/mods/morph/client/entity/EntityAcquisition.java:129: error: not a statement
+                if(tendrils.size()_keeper() < 5 && age % 2 == 0)
+                                                ^
+/app/src/main/java/me/ichun/mods/morph/client/entity/EntityAcquisition.java:129: error: ';' expected
+                if(tendrils.size()_keeper() < 5 && age % 2 == 0)
+                                                               ^
+/app/src/main/java/me/ichun/mods/morph/client/entity/EntityAcquisition.java:144: error: ')' expected
+                if(tendrils.size()_keeper() < maxRequiredTendrils && !acquiredCapture.infos.isEmpty() && age % 3 == 0)
+                                  ^
+/app/src/main/java/me/ichun/mods/morph/client/entity/EntityAcquisition.java:144: error: not a statement
+                if(tendrils.size()_keeper() < maxRequiredTendrils && !acquiredCapture.infos.isEmpty() && age % 3 == 0)
+                                                                                                      ^
+/app/src/main/java/me/ichun/mods/morph/client/entity/EntityAcquisition.java:144: error: ';' expected
+                if(tendrils.size()_keeper() < maxRequiredTendrils && !acquiredCapture.infos.isEmpty() && age % 3 == 0)
+                                                                                                                     ^
+/app/src/main/java/me/ichun/mods/morph/client/entity/EntityAcquisition.java:351: error: ')' expected
+                                int count = (int)Math.ceil(Math.max(acquiredCapture.infos.size()_keeper() / 10F, 1));
+                                                                                                ^
+/app/src/main/java/me/ichun/mods/morph/client/entity/EntityAcquisition.java:351: error: not a statement
+                                int count = (int)Math.ceil(Math.max(acquiredCapture.infos.size()_keeper() / 10F, 1));
+                                                                                                          ^
+/app/src/main/java/me/ichun/mods/morph/client/entity/EntityAcquisition.java:351: error: ';' expected
+                                int count = (int)Math.ceil(Math.max(acquiredCapture.infos.size()_keeper() / 10F, 1));
+                                                                                                               ^
+/app/src/main/java/me/ichun/mods/morph/client/entity/EntityAcquisition.java:354: error: ')' expected
+                                    int i = rand.nextInt(acquiredCapture.infos.size()_keeper());
+                                                                                     ^
+/app/src/main/java/me/ichun/mods/morph/client/entity/EntityAcquisition.java:354: error: ';' expected
+                                    int i = rand.nextInt(acquiredCapture.infos.size()_keeper());
+                                                                                              ^
+/app/src/main/java/me/ichun/mods/morph/client/model/ModelAcquisition.java:36: error: ';' expected
+                    for(int i = 0; i < modelRenderers.size()_keeper(); i++)
+                                                            ^
+/app/src/main/java/me/ichun/mods/morph/client/model/ModelAcquisition.java:36: error: ')' expected
+                    for(int i = 0; i < modelRenderers.size()_keeper(); i++)
+                                                                     ^
+/app/src/main/java/me/ichun/mods/morph/client/model/ModelAcquisition.java:36: error: ';' expected
+                    for(int i = 0; i < modelRenderers.size()_keeper(); i++)
+                                                                          ^
+/app/src/main/java/me/ichun/mods/morph/client/model/ModelAcquisition.java:42: error: ')' expected
+                            alpha = MathHelper.clamp((modelRenderers.size()_keeper() - i) / (float)Morph.configClient.acquisitionTendrilPartOpacity, 0F, 1F);
+                                                                           ^
+/app/src/main/java/me/ichun/mods/morph/client/model/ModelAcquisition.java:42: error: not a statement
+                            alpha = MathHelper.clamp((modelRenderers.size()_keeper() - i) / (float)Morph.configClient.acquisitionTendrilPartOpacity, 0F, 1F);
+                                                                                     ^
+/app/src/main/java/me/ichun/mods/morph/client/model/ModelAcquisition.java:42: error: ';' expected
+                            alpha = MathHelper.clamp((modelRenderers.size()_keeper() - i) / (float)Morph.configClient.acquisitionTendrilPartOpacity, 0F, 1F);
+                                                                                        ^
+/app/src/main/java/me/ichun/mods/morph/client/model/ModelAcquisition.java:42: error: not a statement
+                            alpha = MathHelper.clamp((modelRenderers.size()_keeper() - i) / (float)Morph.configClient.acquisitionTendrilPartOpacity, 0F, 1F);
+                                                                                             ^
+/app/src/main/java/me/ichun/mods/morph/client/model/ModelAcquisition.java:42: error: ';' expected
+                            alpha = MathHelper.clamp((modelRenderers.size()_keeper() - i) / (float)Morph.configClient.acquisitionTendrilPartOpacity, 0F, 1F);
+                                                                                                  ^
+/app/src/main/java/me/ichun/mods/morph/client/model/ModelAcquisition.java:42: error: not a statement
+                            alpha = MathHelper.clamp((modelRenderers.size()_keeper() - i) / (float)Morph.configClient.acquisitionTendrilPartOpacity, 0F, 1F);
+                                                                                                                     ^
+/app/src/main/java/me/ichun/mods/morph/client/model/ModelAcquisition.java:42: error: ';' expected
+                            alpha = MathHelper.clamp((modelRenderers.size()_keeper() - i) / (float)Morph.configClient.acquisitionTendrilPartOpacity, 0F, 1F);
+                                                                                                                                                   ^
+/app/src/main/java/me/ichun/mods/morph/client/gui/nbt/window/WindowNbt.java:599: error: ';' expected
+            for(int i = mods.size()_keeper() - 1; i >= 0; i--)
+                                   ^
+/app/src/main/java/me/ichun/mods/morph/client/gui/nbt/window/WindowNbt.java:599: error: not a statement
+            for(int i = mods.size()_keeper() - 1; i >= 0; i--)
+                                                    ^
+/app/src/main/java/me/ichun/mods/morph/client/gui/nbt/window/WindowNbt.java:599: error: ')' expected
+            for(int i = mods.size()_keeper() - 1; i >= 0; i--)
+                                                        ^
+/app/src/main/java/me/ichun/mods/morph/client/gui/nbt/window/WindowNbt.java:599: error: ';' expected
+            for(int i = mods.size()_keeper() - 1; i >= 0; i--)
+                                                             ^
+161 errors
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileJava'.
+> Compilation failed; see the compiler error output for details.
+
+* Try:
+> Run with --info option to get more log output.
+> Run with --scan to get full insights.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.5/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 11s
+4 actionable tasks: 2 executed, 2 up-to-date

@@ -9,7 +9,7 @@ import me.ichun.mods.ichunutil.common.config.annotations.Prop;
 import me.ichun.mods.morph.client.render.hand.HandHandler;
 import me.ichun.mods.morph.common.Morph;
 import me.ichun.mods.morph.common.resource.ResourceHandler;
-import net.minecraft.client.resources.I18n;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
 

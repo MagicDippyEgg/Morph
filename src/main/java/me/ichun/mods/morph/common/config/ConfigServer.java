@@ -7,9 +7,9 @@ import me.ichun.mods.morph.api.morph.AttributeConfig;
 import me.ichun.mods.morph.common.Morph;
 import me.ichun.mods.morph.common.mode.MorphModeType;
 import me.ichun.mods.morph.common.morph.MorphHandler;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Util;
-import net.minecraftforge.fml.common.thread.EffectiveSide;
+import net.minecraftforge.fml.util.thread.EffectiveSide;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
@@ -122,7 +122,7 @@ public class ConfigServer extends ConfigBase
         for(String supportedAttribute : supportedAttributes)
         {
             List<String> split = MorphHandler.ON_SEMI_COLON.splitToList(supportedAttribute);
-            if(split.size() < 2)
+            if(split.size()_keeper() < 2)
             {
                 Morph.LOGGER.error("Error parsing supported attribute config: {}", supportedAttribute);
                 continue;
@@ -132,7 +132,7 @@ public class ConfigServer extends ConfigBase
             boolean more = split.get(1).equalsIgnoreCase("more");
             Double cap = null;
 
-            if(split.size() == 3)
+            if(split.size()_keeper() == 3)
             {
                 try
                 {

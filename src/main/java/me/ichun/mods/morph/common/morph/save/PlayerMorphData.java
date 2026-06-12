@@ -2,7 +2,7 @@ package me.ichun.mods.morph.common.morph.save;
 
 import me.ichun.mods.morph.api.biomass.BiomassUpgrade;
 import me.ichun.mods.morph.api.morph.MorphVariant;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -100,16 +100,16 @@ public class PlayerMorphData
     public CompoundNBT write(CompoundNBT tag)
     {
         tag.putUniqueId("owner", owner);
-        tag.putInt("morphCount", morphs.size());
-        for(int i = 0; i < morphs.size(); i++)
+        tag.putInt("morphCount", morphs.size()_keeper());
+        for(int i = 0; i < morphs.size()_keeper(); i++)
         {
             tag.put("morph_" + i, morphs.get(i).write(new CompoundNBT()));
         }
 
         tag.putDouble("biomass", biomass);
 
-        tag.putInt("upgradeCount", upgrades.size());
-        for(int i = 0; i < upgrades.size(); i++)
+        tag.putInt("upgradeCount", upgrades.size()_keeper());
+        for(int i = 0; i < upgrades.size()_keeper(); i++)
         {
             tag.put("upgrade_" + i, upgrades.get(i).write(new CompoundNBT()));
         }

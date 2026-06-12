@@ -5,7 +5,7 @@ import me.ichun.mods.morph.api.biomass.BiomassUpgradeInfo;
 import me.ichun.mods.morph.common.biomass.BiomassUpgradeHandler;
 import me.ichun.mods.morph.common.resource.ResourceHandler;
 import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,7 +24,7 @@ public class PacketSessionSync extends AbstractPacket
     @Override
     public void writeTo(PacketBuffer buf)
     {
-        buf.writeInt(upgrades.size());
+        buf.writeInt(upgrades.size()_keeper());
 
         for(BiomassUpgradeInfo upgrade : upgrades)
         {

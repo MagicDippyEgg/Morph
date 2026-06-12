@@ -1,6 +1,6 @@
 package me.ichun.mods.morph.common.morph.save;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.storage.WorldSavedData;
 
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class MorphSavedData extends WorldSavedData
     @Override
     public CompoundNBT write(CompoundNBT tag)
     {
-        tag.putInt("count", playerMorphs.size());
+        tag.putInt("count", playerMorphs.size()_keeper());
 
         int i = 0;
         for(Map.Entry<UUID, PlayerMorphData> entry : playerMorphs.entrySet())

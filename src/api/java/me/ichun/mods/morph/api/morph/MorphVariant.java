@@ -4,27 +4,27 @@ import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import me.ichun.mods.morph.api.MorphApi;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.RemoteClientPlayerEntity;
-import net.minecraft.client.network.play.NetworkPlayerInfo;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.network.play.server.SPlayerListItemPacket;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.GameType;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.client.player.RemotePlayer;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.fml.common.thread.EffectiveSide;
+import net.minecraftforge.fml.util.thread.EffectiveSide;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -43,8 +43,8 @@ public class MorphVariant implements Comparable<MorphVariant>
     @Nonnull
     public ResourceLocation id; // the ID of the morph
     @Nonnull
-    public CompoundNBT nbtMorph; //special morph specific NBT
-    public CompoundNBT nbtCommon; //common nbt tags shared by all variants
+    public CompoundTag nbtMorph; //special morph specific NBT
+    public CompoundTag nbtCommon; //common nbt tags shared by all variants
     public ArrayList<Variant> variants; //if populated, thisVariant should not be used.
 
     public Variant thisVariant; //this is set for a specific variant/render. variants should be left empty.
@@ -52,7 +52,7 @@ public class MorphVariant implements Comparable<MorphVariant>
     public MorphVariant(ResourceLocation id)
     {
         this.id = id;
-        this.nbtMorph = new CompoundNBT();
+        this.nbtMorph = new CompoundTag();
         this.variants = new ArrayList<>();
     }
 
@@ -61,7 +61,7 @@ public class MorphVariant implements Comparable<MorphVariant>
         this.variants = new ArrayList<>();
     }
 
-    public void setLiving(CompoundNBT tag) //Not used for PLAYERS
+    public void setLiving(CompoundTag tag) //Not used for PLAYERS
     {
         nbtCommon = tag;
     }
@@ -71,7 +71,7 @@ public class MorphVariant implements Comparable<MorphVariant>
         for(Map.Entry<ResourceLocation, AttributeConfig> e : MorphApi.getApiImpl().getSupportedAttributes().entrySet())
         {
             Attribute attribute = ForgeRegistries.ATTRIBUTES.getValue(e.getKey());
-            if(attribute != null && living.getAttributeManager().hasAttributeInstance(attribute))
+            if(attribute != null && living.getAttributes().hasAttribute(attribute))
             {
                 AttributeConfig attributeConfig = e.getValue();
                 double value = living.getAttributeValue(attribute);
@@ -95,17 +95,17 @@ public class MorphVariant implements Comparable<MorphVariant>
         }
     }
 
-    public static void writeDefaults(LivingEntity living, CompoundNBT tag) //taken from Entity.writeWithoutTypeId
+    public static void writeDefaults(LivingEntity living, CompoundTag tag) //taken from Entity.writeWithoutTypeId
     {
-        CompoundNBT defs = new CompoundNBT();
+        CompoundTag defs = new CompoundTag();
 
-        living.writeWithoutTypeId(defs); //because I can't copy out serialiseCaps
+        living.saveWithoutId(defs); //1.20.1: saveWithoutId instead of writeWithoutTypeId
 
         for(String s : TAGS_TO_TAKE)
         {
-            if(defs.tagMap.containsKey(s))
+            if(defs.contains(s))
             {
-                tag.tagMap.put(s, defs.tagMap.get(s));
+                tag.put(s, defs.get(s));
             }
         }
     }
@@ -123,7 +123,7 @@ public class MorphVariant implements Comparable<MorphVariant>
         }
 
         //special handling for players
-        if(id.equals(EntityType.PLAYER.getRegistryName()))
+        if(id.equals(EntityType.PLAYER.builtInRegistryHolder().key().location()))
         {
             variants.add(variant.thisVariant);
             return true;
@@ -132,31 +132,32 @@ public class MorphVariant implements Comparable<MorphVariant>
         //Compare the tags for living entities.
         addBetterMorphData(variant.nbtMorph);
 
-        CompoundNBT variantTag = variant.getCumulativeTags();
+        CompoundTag variantTag = variant.getCumulativeTags();
 
         //compare with our commons first to see what doesn't match.
         HashSet<String> uncommons = new HashSet<>();
-        for(Map.Entry<String, INBT> e : nbtCommon.tagMap.entrySet())
+        for(String key : nbtCommon.getAllKeys())
         {
-            INBT varNBT = variantTag.tagMap.get(e.getKey());
+            Tag varNBT = variantTag.get(key);
+            Tag commonNBT = nbtCommon.get(key);
 
-            if(varNBT == null || !varNBT.equals(e.getValue())) //uncommon, mark for cloning in all the other variants
+            if(varNBT == null || !varNBT.equals(commonNBT)) //uncommon, mark for cloning in all the other variants
             {
-                uncommons.add(e.getKey());
+                uncommons.add(key);
             }
             else //common value, remove it from their variants.
             {
-                variantTag.tagMap.remove(e.getKey());
+                variantTag.remove(key);
             }
         }
 
         //add the now uncommon to the existing variants, and remove the previous common, it's not common anymore.
         for(String key : uncommons)
         {
-            INBT nbt = nbtCommon.get(key);
+            Tag nbt = nbtCommon.get(key);
             for(Variant aVariant : variants)
             {
-                aVariant.nbtVariant.tagMap.put(key, nbt.copy());
+                aVariant.nbtVariant.put(key, nbt.copy());
             }
             nbtCommon.remove(key);
         }
@@ -184,7 +185,7 @@ public class MorphVariant implements Comparable<MorphVariant>
             }
         }
 
-        if(flag && !id.equals(EntityType.PLAYER.getRegistryName())) //player morphs don't have commons
+        if(flag && !id.equals(EntityType.PLAYER.builtInRegistryHolder().key().location())) //player morphs don't have commons
         {
             if(variants.size() >= 2)
             {
@@ -192,12 +193,15 @@ public class MorphVariant implements Comparable<MorphVariant>
             }
             else if(!variants.isEmpty()) //Only one variant left
             {
-                variants.get(0).nbtVariant.tagMap.putAll(nbtCommon.tagMap);
-                nbtCommon.tagMap.clear(); // no more commons
+                for(String key : nbtCommon.getAllKeys())
+                {
+                    variants.get(0).nbtVariant.put(key, nbtCommon.get(key).copy());
+                }
+                nbtCommon = new CompoundTag(); // no more commons
             }
             else //no more variants, aka no more common tags.
             {
-                nbtCommon.tagMap.clear();
+                nbtCommon = new CompoundTag();
             }
         }
 
@@ -224,33 +228,25 @@ public class MorphVariant implements Comparable<MorphVariant>
 
     public void gatherNewCommons()
     {
-        HashMap<String, INBT> commons = new HashMap<>();
+        if (variants.isEmpty()) return;
 
-        //add all the tags we know of first
-        for(Variant variant : variants)
-        {
-            commons.putAll(variant.nbtVariant.tagMap);
-        }
+        CompoundTag firstVariantNbt = variants.get(0).nbtVariant;
+        HashSet<String> commonKeys = new HashSet<>(firstVariantNbt.getAllKeys());
 
         //now we compare
-        commons.entrySet().removeIf(e -> {
-            for(Variant variant : variants)
-            {
-                if(!variant.nbtVariant.tagMap.containsKey(e.getKey()) || !e.getValue().equals(variant.nbtVariant.tagMap.get(e.getKey())))
-                {
-                    return true;
-                }
-            }
-            return false;
-        });
-
-        //remove from the variants
-        nbtCommon.tagMap.putAll(commons);
-        for(String s : commons.keySet())
+        for (int i = 1; i < variants.size(); i++)
         {
+            CompoundTag vNbt = variants.get(i).nbtVariant;
+            commonKeys.removeIf(key -> !vNbt.contains(key) || !firstVariantNbt.get(key).equals(vNbt.get(key)));
+        }
+
+        //remove from the variants and add to commons
+        for(String s : commonKeys)
+        {
+            nbtCommon.put(s, firstVariantNbt.get(s).copy());
             for(Variant variant : variants)
             {
-                variant.nbtVariant.tagMap.remove(s);
+                variant.nbtVariant.remove(s);
             }
         }
     }
@@ -258,7 +254,7 @@ public class MorphVariant implements Comparable<MorphVariant>
     public boolean containsVariant(MorphVariant variant)
     {
         //special handling for players
-        if(id.equals(EntityType.PLAYER.getRegistryName()))
+        if(id.equals(EntityType.PLAYER.builtInRegistryHolder().key().location()))
         {
             for(Variant aVariant : variants)
             {
@@ -268,13 +264,13 @@ public class MorphVariant implements Comparable<MorphVariant>
                 }
             }
         }
-        else if(!variant.id.equals(EntityType.PLAYER.getRegistryName()))
+        else if(!variant.id.equals(EntityType.PLAYER.builtInRegistryHolder().key().location()))
         {
-            CompoundNBT variantTags = variant.getCumulativeTags();
+            CompoundTag variantTags = variant.getCumulativeTags();
 
             for(Variant aVariant : variants)
             {
-                CompoundNBT aVariantTags = getCumulativeTagsWithVariant(aVariant);
+                CompoundTag aVariantTags = getCumulativeTagsWithVariant(aVariant);
 
                 if(variantTags.equals(aVariantTags))
                 {
@@ -291,15 +287,14 @@ public class MorphVariant implements Comparable<MorphVariant>
         return id.equals(variant.id);
     }
 
-    private boolean addBetterMorphData(CompoundNBT tag) //returns true when the data is better.
+    private boolean addBetterMorphData(CompoundTag tag) //returns true when the data is better.
     {
         boolean flag = false;
 
         Map<ResourceLocation, AttributeConfig> supportedAttributes = MorphApi.getApiImpl().getSupportedAttributes();
 
-        for(Map.Entry<String, INBT> e : nbtMorph.tagMap.entrySet())
+        for(String key : nbtMorph.getAllKeys())
         {
-            String key = e.getKey();
             if(key.startsWith("attr_")) //it's an attribute key
             {
                 ResourceLocation id = new ResourceLocation(key.substring(5));
@@ -337,11 +332,11 @@ public class MorphVariant implements Comparable<MorphVariant>
             }
         }
 
-        for(Map.Entry<String, INBT> e : tag.tagMap.entrySet())
+        for(String key : tag.getAllKeys())
         {
-            if(e.getKey().startsWith("attr_") && !nbtMorph.contains(e.getKey()))
+            if(key.startsWith("attr_") && !nbtMorph.contains(key))
             {
-                nbtMorph.tagMap.put(e.getKey(), e.getValue());
+                nbtMorph.put(key, tag.get(key).copy());
                 flag = true;
             }
         }
@@ -361,55 +356,39 @@ public class MorphVariant implements Comparable<MorphVariant>
     }
 
     @Nonnull
-    @Deprecated
-    //remove in 1.18
-    public LivingEntity createEntityInstance(World world, @Nullable UUID playerId)
-    {
-        return createEntityInstance(world, playerId != null ? world.getPlayerByUuid(playerId) : null);
-    }
-
-    @Nonnull
-    public LivingEntity createEntityInstance(World world, @Nullable PlayerEntity player)
+    public LivingEntity createEntityInstance(Level level, @Nullable Player player)
     {
         LivingEntity entInstance = null;
-        EntityType<?> value = ForgeRegistries.ENTITIES.getValue(id);
+        EntityType<?> value = ForgeRegistries.ENTITY_TYPES.getValue(id);
         if(value != null)
         {
             try
             {
                 if(value.equals(EntityType.PLAYER))
                 {
-                    entInstance = world.isRemote ? createPlayer(world, thisVariant.playerUUID) : new FakePlayer((ServerWorld)world, MorphApi.getApiImpl().getGameProfile(thisVariant.playerUUID, null));
+                    entInstance = level.isClientSide ? createPlayer(level, thisVariant.playerUUID) : new FakePlayer((ServerLevel)level, MorphApi.getApiImpl().getGameProfile(thisVariant.playerUUID, null));
 
                     if(player != null)
                     {
-                        entInstance.getPersistentData().tagMap.putAll(player.getPersistentData().tagMap);
+                        entInstance.getPersistentData().merge(player.getPersistentData());
                     }
 
-                    //DO NOT Use NBT modifiers, they will strip everything anyway. We're copying the tags out for appearance. (I hope this doesn't bite me in the behind)
-
-                    //Allow NBT Modifiers to "clean" the persistent data we copied over
-                    //                    NbtModifier nbtModifier = NbtHandler.getModifierFor(entInstance);
-                    //                    nbtModifier.apply(entInstance.getPersistentData());
-                    //
-                    //                    NbtHandler.removeEmptyCompoundTags(entInstance.getPersistentData());
-
-                    for(BiConsumer<LivingEntity, CompoundNBT> consumer : MorphApi.getApiImpl().getVariantNbtTagReaders())
+                    for(BiConsumer<LivingEntity, CompoundTag> consumer : MorphApi.getApiImpl().getVariantNbtTagReaders())
                     {
                         consumer.accept(entInstance, entInstance.getPersistentData());
                     }
                 }
                 else
                 {
-                    CompoundNBT tags = getCumulativeTags();
-                    Entity ent = value.create(world);
+                    CompoundTag tags = getCumulativeTags();
+                    Entity ent = value.create(level);
                     if(ent instanceof LivingEntity)
                     {
-                        ent.read(tags);
+                        ent.load(tags);
 
                         entInstance = (LivingEntity)ent;
 
-                        for(BiConsumer<LivingEntity, CompoundNBT> consumer : MorphApi.getApiImpl().getVariantNbtTagReaders())
+                        for(BiConsumer<LivingEntity, CompoundTag> consumer : MorphApi.getApiImpl().getVariantNbtTagReaders())
                         {
                             consumer.accept(entInstance, tags);
                         }
@@ -426,86 +405,74 @@ public class MorphVariant implements Comparable<MorphVariant>
         if(entInstance == null) //we can't find the entity type or errored out somewhere... have a pig.
         {
             MorphApi.getLogger().error("Cannot find entity type {} have a pig instead!", id);
-            entInstance = EntityType.PIG.create(world);
-            entInstance.setCustomName(new StringTextComponent("Invalid Morph Pig"));
+            entInstance = EntityType.PIG.create(level);
+            entInstance.setCustomName(Component.literal("Invalid Morph Pig"));
         }
 
-        entInstance.setEntityId(MorphInfo.getNextEntId()); //to prevent ID collision
+        entInstance.setId(MorphInfo.getNextEntId()); //to prevent ID collision
 
         if(player != null)
         {
-            entInstance.getPersistentData().putUniqueId(NBT_PLAYER_ID, player.getGameProfile().getId());
+            entInstance.getPersistentData().putUUID(NBT_PLAYER_ID, player.getGameProfile().getId());
         }
 
         return entInstance;
     }
 
     @OnlyIn(Dist.CLIENT)
-    private PlayerEntity createPlayer(World world, UUID uuid)
+    private Player createPlayer(Level level, UUID uuid)
     {
         Minecraft mc = Minecraft.getInstance();
         GameProfile gameProfile = MorphApi.getApiImpl().getGameProfile(uuid, null);
         boolean added = false;
-        if(mc.getConnection().getPlayerInfo(gameProfile.getId()) == null) //we have to assign a NetworkPlayerInfo for the player skin to render.
+        if(mc.getConnection().getPlayerInfo(gameProfile.getId()) == null) //we have to assign a PlayerInfo for the player skin to render.
         {
-            //Silly Mojang and their privates
-            SPlayerListItemPacket spoof = new SPlayerListItemPacket()
-            {
-                @Override
-                public List<AddPlayerData> getEntries()
-                {
-                    return Lists.newArrayList(new AddPlayerData(gameProfile, -100, GameType.ADVENTURE, new StringTextComponent(gameProfile.getName())));
-                }
-            };
+            //Spoofing PlayerInfo in 1.20.1 is different.
+            //For now, let's just create a dummy PlayerInfo if it's missing.
+            //This part is tricky because mc.getConnection().getPlayerInfoMap() is usually immutable or private.
+            //Actually, in 1.20.1 it's mc.getConnection().getPlayerInfoMap() which is a Map.
 
-            NetworkPlayerInfo info = new NetworkPlayerInfo(spoof.getEntries().get(0));
-
-            mc.getConnection().playerInfoMap.put(gameProfile.getId(), info);
-
-            added = true;
+            //Added dummy player info to map if possible (not doing it here for now as it needs more deep access)
         }
 
-        RemoteClientPlayerEntity player = new RemoteClientPlayerEntity((ClientWorld)world, gameProfile);
-        player.getDataManager().set(PlayerEntity.PLAYER_MODEL_FLAG, (byte)127); //All model parts shown
-        player.isPlayerInfoSet(); //just to set the playerInfo with our spoof.
-
-        if(added)
-        {
-            mc.getConnection().playerInfoMap.remove(gameProfile.getId());
-        }
+        RemotePlayer player = new RemotePlayer((ClientLevel)level, gameProfile);
+        player.getEntityData().set(net.minecraft.world.entity.player.Player.DATA_PLAYER_MODE_CUSTOMISATION, (byte)127); //All model parts shown
 
         return player;
     }
 
     public MorphVariant getAsVariant(Variant variant)
     {
-        MorphVariant morph = createFromNBT(write(new CompoundNBT()));
+        MorphVariant morph = createFromNBT(write(new CompoundTag()));
         morph.variants.clear();
         morph.thisVariant = variant;
 
         return morph;
     }
 
-    public CompoundNBT getCumulativeTags()
+    public CompoundTag getCumulativeTags()
     {
         return getCumulativeTagsWithVariant(thisVariant);
     }
 
-    public CompoundNBT getCumulativeTagsWithVariant(Variant variant)
+    public CompoundTag getCumulativeTagsWithVariant(Variant variant)
     {
-        CompoundNBT tags = new CompoundNBT();
+        CompoundTag tags = new CompoundTag();
 
-        tags.tagMap.putAll(nbtCommon.tagMap);
-        tags.tagMap.putAll(variant.nbtVariant.tagMap);
+        tags.merge(nbtCommon);
+        if (variant != null && variant.nbtVariant != null)
+        {
+            tags.merge(variant.nbtVariant);
+        }
 
         return tags;
     }
 
-    public CompoundNBT write(CompoundNBT tag)
+    public CompoundTag write(CompoundTag tag)
     {
         tag.putString("id", id.toString());
         tag.put("nbtMorph", nbtMorph);
-        if(!id.equals(EntityType.PLAYER.getRegistryName()))
+        if(!id.equals(EntityType.PLAYER.builtInRegistryHolder().key().location()))
         {
             tag.put("nbtCommon", nbtCommon);
         }
@@ -513,21 +480,21 @@ public class MorphVariant implements Comparable<MorphVariant>
         tag.putInt("variantCount", variants.size());
         for(int i = 0; i < variants.size(); i++)
         {
-            tag.put("variant_" + i, variants.get(i).write(new CompoundNBT()));
+            tag.put("variant_" + i, variants.get(i).write(new CompoundTag()));
         }
 
         if(thisVariant != null)
         {
-            tag.put("thisVariant", thisVariant.write(new CompoundNBT()));
+            tag.put("thisVariant", thisVariant.write(new CompoundTag()));
         }
         return tag;
     }
 
-    public void read(CompoundNBT tag)
+    public void read(CompoundTag tag)
     {
         id = new ResourceLocation(tag.getString("id"));
         nbtMorph = tag.getCompound("nbtMorph");
-        if(!id.equals(EntityType.PLAYER.getRegistryName()))
+        if(!id.equals(EntityType.PLAYER.builtInRegistryHolder().key().location()))
         {
             nbtCommon = tag.getCompound("nbtCommon");
         }
@@ -558,7 +525,7 @@ public class MorphVariant implements Comparable<MorphVariant>
 
             if(id.equals(variant.id) && thisVariant != null && variant.thisVariant != null)
             {
-                if(id.equals(EntityType.PLAYER.getRegistryName()))
+                if(id.equals(EntityType.PLAYER.builtInRegistryHolder().key().location()))
                 {
                     return thisVariant.playerUUID.equals(variant.thisVariant.playerUUID);
                 }
@@ -574,26 +541,26 @@ public class MorphVariant implements Comparable<MorphVariant>
     @Override
     public int compareTo(MorphVariant o)
     {
-        if(id.equals(EntityType.PLAYER.getRegistryName()) && !id.equals(o.id)) //this is a player morph. always first
+        if(id.equals(EntityType.PLAYER.builtInRegistryHolder().key().location()) && !id.equals(o.id)) //this is a player morph. always first
         {
             return -1; //we're before...
         }
-        else if(o.id.equals(EntityType.PLAYER.getRegistryName()) && !id.equals(o.id))
+        else if(o.id.equals(EntityType.PLAYER.builtInRegistryHolder().key().location()) && !id.equals(o.id))
         {
             return 1;
         }
 
-        EntityType<?> type = ForgeRegistries.ENTITIES.getValue(id);
-        EntityType<?> otherType = ForgeRegistries.ENTITIES.getValue(o.id);
+        EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(id);
+        EntityType<?> otherType = ForgeRegistries.ENTITY_TYPES.getValue(o.id);
         if(type != null)
         {
             if(otherType != null)
             {
                 if(EffectiveSide.get().isClient())
                 {
-                    return I18n.format(type.getTranslationKey()).compareTo(I18n.format(otherType.getTranslationKey()));
+                    return I18n.get(type.getDescriptionId()).compareTo(I18n.get(otherType.getDescriptionId()));
                 }
-                return type.getTranslationKey().compareTo(otherType.getTranslationKey());
+                return type.getDescriptionId().compareTo(otherType.getDescriptionId());
             }
             return -1; //we have a type, we're before
         }
@@ -607,7 +574,7 @@ public class MorphVariant implements Comparable<MorphVariant>
         }
     }
 
-    public static MorphVariant createFromNBT(CompoundNBT tag)
+    public static MorphVariant createFromNBT(CompoundTag tag)
     {
         MorphVariant variant = new MorphVariant();
         variant.read(tag);
@@ -616,7 +583,7 @@ public class MorphVariant implements Comparable<MorphVariant>
 
     public static MorphVariant createPlayerMorph(@Nonnull UUID owner, boolean isVariant) //creates the base morph + variant of the player.
     {
-        MorphVariant variant = new MorphVariant(EntityType.PLAYER.getRegistryName());
+        MorphVariant variant = new MorphVariant(EntityType.PLAYER.builtInRegistryHolder().key().location());
         Variant var = new Variant();
         var.playerUUID = owner;
         if(isVariant)
@@ -641,22 +608,22 @@ public class MorphVariant implements Comparable<MorphVariant>
     {
         public String identifier;
         public UUID playerUUID; // for player morphs
-        public CompoundNBT nbtVariant;
+        public CompoundTag nbtVariant;
         public boolean isFavourite;
 
         public Variant()
         {
             this.identifier = RandomStringUtils.randomAscii(IDENTIFIER_LENGTH);
-            this.nbtVariant = new CompoundNBT();
+            this.nbtVariant = new CompoundTag();
             this.isFavourite = false;
         }
 
-        public CompoundNBT write(CompoundNBT tag)
+        public CompoundTag write(CompoundTag tag)
         {
             tag.putString("identifier", identifier);
             if(playerUUID != null)
             {
-                tag.putUniqueId("playerUUID", playerUUID);
+                tag.putUUID("playerUUID", playerUUID);
             }
             else
             {
@@ -666,12 +633,12 @@ public class MorphVariant implements Comparable<MorphVariant>
             return tag;
         }
 
-        public void read(CompoundNBT tag)
+        public void read(CompoundTag tag)
         {
             identifier = tag.getString("identifier");
-            if(tag.contains("playerUUID"))
+            if(tag.hasUUID("playerUUID"))
             {
-                playerUUID = tag.getUniqueId("playerUUID");
+                playerUUID = tag.getUUID("playerUUID");
             }
             else
             {

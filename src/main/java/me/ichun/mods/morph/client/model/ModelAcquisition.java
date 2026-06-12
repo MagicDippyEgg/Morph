@@ -1,15 +1,15 @@
 package me.ichun.mods.morph.client.model;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import me.ichun.mods.morph.client.entity.EntityAcquisition;
 import me.ichun.mods.morph.common.Morph;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.settings.PointOfView;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 
@@ -33,13 +33,13 @@ public class ModelAcquisition extends EntityModel<EntityAcquisition>
                     ArrayList<ModelRenderer> modelRenderers = new ArrayList<>();
                     tendril.createModelRenderer(modelRenderers, partialTick);
                     tendril.renderCapture(entity, stack, buffer, light, overlay, partialTick);
-                    for(int i = 0; i < modelRenderers.size(); i++)
+                    for(int i = 0; i < modelRenderers.size()_keeper(); i++)
                     {
                         ModelRenderer modelRenderer = modelRenderers.get(i);
                         float alpha = 1F;
                         if(isFirstPerson && Morph.configClient.acquisitionTendrilPartOpacity > 0)
                         {
-                            alpha = MathHelper.clamp((modelRenderers.size() - i) / (float)Morph.configClient.acquisitionTendrilPartOpacity, 0F, 1F);
+                            alpha = MathHelper.clamp((modelRenderers.size()_keeper() - i) / (float)Morph.configClient.acquisitionTendrilPartOpacity, 0F, 1F);
                         }
                         modelRenderer.render(stack, buffer, light, overlay, 1F, 1F, 1F, alpha);
                     }
