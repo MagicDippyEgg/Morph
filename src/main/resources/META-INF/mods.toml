@@ -1,21 +1,28 @@
 modLoader="javafml"
-loaderVersion="[34,)" #forge version dep
+loaderVersion="[47,)"
 license="GNU Lesser General Public License v3.0"
 issueTrackerURL="https://github.com/iChun/Morph/issues"
 
 [[mods]]
     modId="morph"
-    version="${file.jarVersion}" #mandatory
+    version="${file.jarVersion}"
     displayName="Morph"
     displayURL="https://ichun.me/mods/morph/"
     authors="iChun"
     description='''
-    Kill other entities and take their form.
+    Kill other entities and take their form. Updated to 1.20.1.
     '''
+
+[[dependencies.morph]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
 
 [[dependencies.morph]]
     modId="ichunutil"
     mandatory=true
-    versionRange="[10.7.0,11)"
+    versionRange="[1.0.0,)"
     ordering="NONE"
     side="BOTH"

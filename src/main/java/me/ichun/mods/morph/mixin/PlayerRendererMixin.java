@@ -1,26 +1,53 @@
 package me.ichun.mods.morph.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import me.ichun.mods.morph.client.render.hand.HandHandler;
-import net.minecraft.client.player.AbstractClientPlayerEntity;
+import me.ichun.mods.morph.api.MorphApi;
+import me.ichun.mods.morph.api.morph.MorphInfo;
+import me.ichun.mods.morph.api.morph.MorphState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerRenderer.class)
-public abstract class PlayerRendererMixin
-{
-    //This is more the "render arm" method, not so much "render item"
-    @Inject(method = "renderItem", at = @At("HEAD"), cancellable = true)
-    private void renderItem(MatrixStack stack, IRenderTypeBuffer buffer, int light, AbstractClientPlayerEntity player, ModelRenderer arm, ModelRenderer armwear, CallbackInfo ci)
-    {
-        if(HandHandler.instance != null && HandHandler.instance.renderHand(((PlayerRenderer)(Object)this), stack, buffer, light, player, arm, armwear))
-        {
-            ci.cancel(); //cancel the call
+public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
+    public PlayerRendererMixin(net.minecraft.client.renderer.entity.EntityRendererProvider.Context context, PlayerModel<AbstractClientPlayer> model, float shadowSize) {
+        super(context, model, shadowSize);
+    }
+
+    @Inject(method = "render(Lnet/minecraft/client/player/AbstractClientPlayer;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"), cancellable = true)
+    public void onRender(AbstractClientPlayer player, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
+        if (MorphApi.getApi() == null) return;
+        MorphInfo info = MorphApi.getApi().getMorphInfo(player);
+        if (info != null) {
+            MorphState current = info.getCurrentState();
+            if (current != null && current.variant != null && !current.variant.id.getPath().equals("player")) {
+                LivingEntity entity = current.getEntity(player.level());
+                if (entity != null) {
+                    ci.cancel();
+                    entity.setPos(player.getX(), player.getY(), player.getZ());
+                    entity.setYRot(player.getYRot());
+                    entity.setXRot(player.getXRot());
+                    entity.yHeadRot = player.yHeadRot;
+                    entity.yBodyRot = player.yBodyRot;
+                    entity.tickCount = player.tickCount;
+
+                    EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+                    EntityRenderer<? super LivingEntity> renderer = dispatcher.getRenderer(entity);
+                    if (renderer != null) {
+                        renderer.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
+                    }
+                }
+            }
         }
     }
 }

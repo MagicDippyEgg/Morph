@@ -1,49 +1,38 @@
 package me.ichun.mods.morph.common.morph.save;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.storage.WorldSavedData;
-
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.saveddata.SavedData;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class MorphSavedData extends WorldSavedData
-{
-    public static final String ID = "morph_save";
-    public HashMap<UUID, PlayerMorphData> playerMorphs = new HashMap<>();
+public class MorphSavedData extends SavedData {
+    public final Map<UUID, PlayerMorphData> playerMorphs = new HashMap<>();
 
-    public MorphSavedData()
-    {
-        super(ID);
+    public static MorphSavedData get(ServerLevel level) {
+        return level.getDataStorage().computeIfAbsent(MorphSavedData::load, MorphSavedData::new, "morph_data");
+    }
+
+    public static MorphSavedData load(CompoundTag tag) {
+        MorphSavedData data = new MorphSavedData();
+        ListTag list = tag.getList("players", Tag.TAG_COMPOUND);
+        for (int i = 0; i < list.size(); i++) {
+            PlayerMorphData pData = PlayerMorphData.deserialize(list.getCompound(i));
+            data.playerMorphs.put(pData.uuid, pData);
+        }
+        return data;
     }
 
     @Override
-    public void read(CompoundNBT tag)
-    {
-        playerMorphs.clear();
-
-        int count = tag.getInt("count");
-        for(int i = 0; i < count; i++)
-        {
-            PlayerMorphData playerData = new PlayerMorphData();
-            playerData.read(tag.getCompound("morph_" + i));
-
-            playerMorphs.put(playerData.owner, playerData);
+    public CompoundTag save(CompoundTag tag) {
+        ListTag list = new ListTag();
+        for (PlayerMorphData pData : playerMorphs.values()) {
+            list.add(pData.serialize());
         }
-    }
-
-    @Override
-    public CompoundNBT write(CompoundNBT tag)
-    {
-        tag.putInt("count", playerMorphs.size()_keeper());
-
-        int i = 0;
-        for(Map.Entry<UUID, PlayerMorphData> entry : playerMorphs.entrySet())
-        {
-            tag.put("morph_" + i, entry.getValue().write(new CompoundNBT()));
-            i++;
-        }
-
+        tag.put("players", list);
         return tag;
     }
 }
