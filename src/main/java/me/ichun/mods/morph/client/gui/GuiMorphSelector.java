@@ -12,19 +12,13 @@ import java.util.List;
 
 public class GuiMorphSelector extends Screen {
     private int selectedIndex = 0;
-
-    public GuiMorphSelector() {
-        super(Component.literal("Morph Selector"));
-    }
+    public GuiMorphSelector() { super(Component.literal("Morph Selector")); }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
-
         graphics.drawCenteredString(font, "Morph Selector", width / 2, 10, 0xFFFFFF);
-        graphics.drawCenteredString(font, "Use Arrow Keys to select, ENTER to morph", width / 2, 22, 0xAAAAAA);
-
         PlayerMorphData data = MorphHandler.INSTANCE.getPlayerMorphData(minecraft.player);
         if (data != null) {
             List<MorphVariant> morphs = data.acquiredMorphs;
@@ -41,18 +35,11 @@ public class GuiMorphSelector extends Screen {
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         PlayerMorphData data = MorphHandler.INSTANCE.getPlayerMorphData(minecraft.player);
         if (data == null) return super.keyPressed(keyCode, scanCode, modifiers);
-
         List<MorphVariant> morphs = data.acquiredMorphs;
-        if (keyCode == 256) { // ESC
-            this.onClose();
-            return true;
-        } else if (keyCode == 265) { // UP
-            selectedIndex = (selectedIndex - 1 + morphs.size()) % Math.max(1, morphs.size());
-            return true;
-        } else if (keyCode == 264) { // DOWN
-            selectedIndex = (selectedIndex + 1) % Math.max(1, morphs.size());
-            return true;
-        } else if (keyCode == 257) { // ENTER
+        if (keyCode == 256) { this.onClose(); return true; }
+        else if (keyCode == 265) { selectedIndex = (selectedIndex - 1 + morphs.size()) % Math.max(1, morphs.size()); return true; }
+        else if (keyCode == 264) { selectedIndex = (selectedIndex + 1) % Math.max(1, morphs.size()); return true; }
+        else if (keyCode == 257) {
             if (!morphs.isEmpty()) {
                 Morph.channel.sendToServer(new PacketMorphRequest(morphs.get(selectedIndex).id.toString()));
                 this.onClose();
@@ -61,7 +48,5 @@ public class GuiMorphSelector extends Screen {
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
-
-    @Override
-    public boolean isPauseScreen() { return false; }
+    @Override public boolean isPauseScreen() { return false; }
 }

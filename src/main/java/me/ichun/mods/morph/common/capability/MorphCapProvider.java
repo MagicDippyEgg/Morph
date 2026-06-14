@@ -26,13 +26,6 @@ public class MorphCapProvider implements ICapabilitySerializable<CompoundTag> {
         return LazyOptional.empty();
     }
 
-    @Override
-    public CompoundTag serializeNBT() {
-        return info.write(new CompoundTag());
-    }
-
-    @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        info.read(nbt);
-    }
+    @Override public CompoundTag serializeNBT() { return info.write(new CompoundTag()); }
+    @Override public void deserializeNBT(CompoundTag nbt) { info.read(nbt); }
 }

@@ -3,10 +3,11 @@
   "minVersion": "0.8",
   "package": "me.ichun.mods.morph.mixin",
   "compatibilityLevel": "JAVA_17",
+  "refmap": "morph.refmap.json",
   "mixins": [
-    "PlayerRendererMixin"
   ],
   "client": [
+    "PlayerRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -3,9 +3,7 @@ package me.ichun.mods.morph.common.morph;
 import me.ichun.mods.morph.api.IApi;
 import me.ichun.mods.morph.api.morph.*;
 import me.ichun.mods.morph.common.Morph;
-import me.ichun.mods.morph.common.packet.PacketMorphInfo;
-import me.ichun.mods.morph.common.packet.PacketAcquisition;
-import me.ichun.mods.morph.common.packet.PacketSyncAcquiredMorphs;
+import me.ichun.mods.morph.common.packet.*;
 import me.ichun.mods.morph.common.morph.save.MorphSavedData;
 import me.ichun.mods.morph.common.morph.save.PlayerMorphData;
 import net.minecraft.nbt.CompoundTag;
@@ -29,8 +27,9 @@ public final class MorphHandler implements IApi {
     public boolean morphTo(ServerPlayer player, MorphVariant variant) {
         MorphInfo info = getMorphInfo(player);
         info.setNextState(new MorphState(variant), 80);
-        Morph.channel.sendTo(new PacketMorphInfo(player.getId(), info.write(new CompoundTag())), player);
-        Morph.channel.sendToTracking(new PacketMorphInfo(player.getId(), info.write(new CompoundTag())), player);
+        CompoundTag tag = info.write(new CompoundTag());
+        Morph.channel.sendTo(new PacketMorphInfo(player.getId(), tag), player);
+        Morph.channel.sendToTracking(new PacketMorphInfo(player.getId(), tag), player);
         return true;
     }
 

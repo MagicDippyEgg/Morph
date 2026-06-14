@@ -7,7 +7,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 public class MorphCommand {
@@ -26,7 +25,6 @@ public class MorphCommand {
                 )
             )
         );
-
         dispatcher.register(Commands.literal("demorph")
             .requires(source -> source.hasPermission(2))
             .then(Commands.argument("targets", EntityArgument.players())

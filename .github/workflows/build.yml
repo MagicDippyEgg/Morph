@@ -2,7 +2,7 @@ name: Build and Release
 on:
   push:
     branches:
-      - jules-17588771482077852087-801c023c
+      - 1.20.1
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,10 +27,9 @@ jobs:
           name: Morph-1.20.1
           path: build/libs/*.jar
       - name: Create Release
-        if: github.event_name == 'push'
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v1.20.1-morph-port
+          tag_name: v1.0.0-1.20.1-port
           name: Morph 1.20.1 Port
           files: build/libs/*.jar
         env:

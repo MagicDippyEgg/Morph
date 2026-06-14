@@ -8,7 +8,6 @@ import me.ichun.mods.morph.common.morph.save.PlayerMorphData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.resources.ResourceLocation;
 import java.util.Optional;
 
 public class PacketMorphRequest extends AbstractPacket {
@@ -27,21 +26,14 @@ public class PacketMorphRequest extends AbstractPacket {
                 ServerPlayer serverPlayer = (ServerPlayer) player;
                 PlayerMorphData data = MorphHandler.INSTANCE.getPlayerMorphData(serverPlayer);
                 if (data != null) {
-                    boolean hasMorph = false;
-                    MorphVariant requestedVariant = null;
                     for (MorphVariant variant : data.acquiredMorphs) {
                         if (variant.id.toString().equals(morphId)) {
-                            hasMorph = true;
-                            requestedVariant = variant;
+                            MorphApi.getApi().morphTo(serverPlayer, variant);
                             break;
                         }
                     }
-
-                    // Always allow demorphing to player
                     if (morphId.endsWith(":player")) {
                         MorphApi.getApi().demorph(serverPlayer);
-                    } else if (hasMorph && requestedVariant != null) {
-                        MorphApi.getApi().morphTo(serverPlayer, requestedVariant);
                     }
                 }
             }

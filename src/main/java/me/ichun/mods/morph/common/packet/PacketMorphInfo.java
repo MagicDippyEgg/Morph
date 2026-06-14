@@ -19,17 +19,8 @@ public class PacketMorphInfo extends AbstractPacket {
         this.tag = tag;
     }
 
-    @Override
-    public void writeTo(FriendlyByteBuf buffer) {
-        buffer.writeInt(entityId);
-        buffer.writeNbt(tag);
-    }
-
-    @Override
-    public void readFrom(FriendlyByteBuf buffer) {
-        entityId = buffer.readInt();
-        tag = buffer.readNbt();
-    }
+    @Override public void writeTo(FriendlyByteBuf buffer) { buffer.writeInt(entityId); buffer.writeNbt(tag); }
+    @Override public void readFrom(FriendlyByteBuf buffer) { entityId = buffer.readInt(); tag = buffer.readNbt(); }
 
     @Override
     public Optional<Runnable> process(Player player) {

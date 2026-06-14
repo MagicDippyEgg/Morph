@@ -14,14 +14,13 @@ public class PlayerMorphData {
 
     public PlayerMorphData(UUID uuid) {
         this.uuid = uuid;
-        // Add player morph by default
         acquiredMorphs.add(MorphVariant.createPlayerMorph(uuid, true));
     }
 
     public MorphVariant addVariant(MorphVariant variant) {
         if (variant.id.getPath().equals("player")) return null;
         for (MorphVariant v : acquiredMorphs) {
-            if (v.id.equals(variant.id)) return null; // Already have it
+            if (v.id.equals(variant.id)) return null;
         }
         acquiredMorphs.add(variant);
         return variant;
@@ -38,20 +37,9 @@ public class PlayerMorphData {
 
     public static PlayerMorphData deserialize(CompoundTag tag) {
         PlayerMorphData data = new PlayerMorphData(tag.getUUID("uuid"));
-        data.acquiredMorphs.clear(); // Clear the default player morph added in constructor
+        data.acquiredMorphs.clear();
         ListTag list = tag.getList("morphs", Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) data.acquiredMorphs.add(MorphVariant.deserialize(list.getCompound(i)));
-
-        // Ensure player morph is still there if it was missing for some reason
-        boolean hasPlayer = false;
-        for (MorphVariant v : data.acquiredMorphs) {
-            if (v.id.getPath().equals("player")) {
-                hasPlayer = true;
-                break;
-            }
-        }
-        if (!hasPlayer) data.acquiredMorphs.add(0, MorphVariant.createPlayerMorph(data.uuid, true));
-
         return data;
     }
 }
