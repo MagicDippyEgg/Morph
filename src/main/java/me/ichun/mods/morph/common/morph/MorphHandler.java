@@ -8,10 +8,13 @@ import me.ichun.mods.morph.common.morph.save.PlayerMorphData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.registries.ForgeRegistries;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +26,7 @@ public final class MorphHandler implements IApi {
     private MorphSavedData saveData;
     private PlayerMorphData clientData;
 
-    public static final UUID HEALTH_MOD_UUID = UUID.fromString("648D437C-00AA-418E-9366-0744B9E34661");
+    private static final UUID MORPH_MOD_UUID = UUID.fromString("648D437C-00AA-418E-9366-0744B9E34661");
     private static final List<String> TRANSIENT_KEYS = Arrays.asList(
         "Health", "DeathTime", "HurtTime", "HurtByTimestamp", "Pos", "Motion", "Rotation", "UUID", "OnGround", "Air", "Fire", "FallDistance", "Invulnerable", "PortalCooldown", "AbsorptionAmount", "FallFlying", "Attributes", "Brain"
     );
@@ -37,27 +40,39 @@ public final class MorphHandler implements IApi {
         Morph.channel.sendTo(new PacketMorphInfo(player.getId(), tag), player);
         Morph.channel.sendToTracking(new PacketMorphInfo(player.getId(), tag), player);
 
-        updatePlayerHealth(player, variant);
+        updatePlayerAttributes(player, variant);
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(), Morph.Sounds.MORPH.get(), net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 1.0f); player.refreshDimensions();
         return true;
     }
 
-    public void updatePlayerHealth(ServerPlayer player, MorphVariant variant) {
-        AttributeInstance attr = player.getAttribute(Attributes.MAX_HEALTH);
-        if (attr == null) return;
-        attr.removeModifier(HEALTH_MOD_UUID);
+    public void updatePlayerAttributes(ServerPlayer player, MorphVariant variant) {
+        updateAttribute(player, variant, Attributes.MAX_HEALTH);
+        updateAttribute(player, variant, Attributes.MOVEMENT_SPEED);
+        updateAttribute(player, variant, ForgeMod.STEP_HEIGHT_ADDITION.get());
+
+        if (player.getHealth() > player.getMaxHealth()) {
+            player.setHealth(player.getMaxHealth());
+        }
+    }
+
+    private void updateAttribute(ServerPlayer player, MorphVariant variant, Attribute attribute) {
+        AttributeInstance playerAttr = player.getAttribute(attribute);
+        if (playerAttr == null) return;
+        playerAttr.removeModifier(MORPH_MOD_UUID);
 
         if (!variant.id.getPath().equals("player")) {
             LivingEntity dummy = variant.createEntity(player.level());
             if (dummy != null) {
-                float morphMaxHealth = dummy.getMaxHealth();
-                float baseHealth = (float) attr.getBaseValue();
-                float diff = morphMaxHealth - baseHealth;
-                attr.addTransientModifier(new AttributeModifier(HEALTH_MOD_UUID, "Morph Health", diff, AttributeModifier.Operation.ADDITION));
+                AttributeInstance dummyAttr = dummy.getAttribute(attribute);
+                if (dummyAttr != null) {
+                    double dummyVal = dummyAttr.getValue();
+                    double playerBase = playerAttr.getBaseValue();
+                    double diff = dummyVal - playerBase;
+                    if (Math.abs(diff) > 0.0001) {
+                        playerAttr.addTransientModifier(new AttributeModifier(MORPH_MOD_UUID, "Morph Modifier", diff, AttributeModifier.Operation.ADDITION));
+                    }
+                }
             }
-        }
-
-        if (player.getHealth() > player.getMaxHealth()) {
-            player.setHealth(player.getMaxHealth());
         }
     }
 

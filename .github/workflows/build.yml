@@ -28,7 +28,7 @@ jobs:
           name: Morph-1.20.1
           path: build/libs/*.jar
       - name: Create Release
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/1.20.1'
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/1.20.1')
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v1.0.0-1.20.1-final

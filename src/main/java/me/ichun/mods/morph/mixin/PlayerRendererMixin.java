@@ -32,27 +32,30 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
                 if (entity != null) {
                     ci.cancel();
 
-                    // Sync positions
+                    // Basic sync
                     entity.setPos(player.getX(), player.getY(), player.getZ());
                     entity.xo = player.xo; entity.yo = player.yo; entity.zo = player.zo;
-
-                    // Sync rotations including previous values to fix South-facing lerp glitch
                     entity.setYRot(player.getYRot());
                     entity.setXRot(player.getXRot());
                     entity.yRotO = player.yRotO;
                     entity.xRotO = player.xRotO;
-
                     entity.yHeadRot = player.yHeadRot;
                     entity.yHeadRotO = player.yHeadRotO;
-
                     entity.yBodyRot = player.yBodyRot;
                     entity.yBodyRotO = player.yBodyRotO;
+
+                    // Animation sync
+                    entity.walkAnimation.setSpeed(player.walkAnimation.speed());
+                    entity.walkAnimation.position(player.walkAnimation.position());
+                    entity.walkAnimation.update(player.walkAnimation.speed(), 1.0f);
 
                     entity.swingTime = player.swingTime;
                     entity.swingingArm = player.swingingArm;
                     entity.swingTime = player.swingTime;
-
                     entity.tickCount = player.tickCount;
+
+                    entity.setShiftKeyDown(player.isShiftKeyDown());
+                    entity.setSprinting(player.isSprinting());
 
                     EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
                     EntityRenderer<? super LivingEntity> renderer = dispatcher.getRenderer(entity);
