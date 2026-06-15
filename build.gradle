@@ -23,9 +23,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
     mappings channel: 'official', version: '1.20.1'
-
     copyIdeResources = true
-
     runs {
         client {
             workingDirectory project.file('run')
@@ -33,57 +31,26 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            mods {
-                morph {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            mods {
-                morph {
-                    source sourceSets.main
-                }
-            }
+            mods { morph { source sourceSets.main } }
         }
     }
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
-
 sourceSets {
     main {
-        java {
-            srcDirs = ['src/main/java', 'src/api/java']
-        }
+        java { srcDirs = ['src/main/java', 'src/api/java'] }
     }
 }
 
 repositories {
     mavenLocal()
-    maven {
-        url "https://cursemaven.com"
-        content {
-            includeGroup "curse.maven"
-        }
-    }
-    flatDir {
-        dirs 'libs'
-    }
+    maven { url "https://cursemaven.com" }
+    flatDir { dirs 'libs' }
 }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
-
-    // Using local lib for iChunUtil to avoid Cursemaven issues if they persist
     implementation name: 'iChunUtil-1.20.1-Forge-1.0.0'
-
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
@@ -108,7 +75,3 @@ jar {
 }
 
 jar.finalizedBy('reobfJar')
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-}

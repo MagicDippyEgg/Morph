@@ -1,8 +1,9 @@
 name: Build and Release
 on:
   push:
-    branches:
-      - 1.20.1
+    branches: [ main, master, 1.20.1 ]
+  pull_request:
+    branches: [ main, master, 1.20.1 ]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,10 +28,11 @@ jobs:
           name: Morph-1.20.1
           path: build/libs/*.jar
       - name: Create Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/1.20.1'
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v1.0.0-1.20.1-port
-          name: Morph 1.20.1 Port
+          tag_name: v1.0.0-1.20.1-final
+          name: Morph 1.20.1 Final Port
           files: build/libs/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
