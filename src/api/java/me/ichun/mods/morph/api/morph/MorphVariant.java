@@ -23,6 +23,8 @@ public class MorphVariant {
         Entity entity = type.create(level);
         if (entity instanceof LivingEntity living) {
             if (nbt != null) { living.load(nbt); }
+            living.setHealth(living.getMaxHealth());
+            living.deathTime = 0;
             return living;
         }
         return null;

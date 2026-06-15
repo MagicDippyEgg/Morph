@@ -11,10 +11,18 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.registries.ForgeRegistries;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public final class MorphHandler implements IApi {
     public static final MorphHandler INSTANCE = new MorphHandler();
     private MorphSavedData saveData;
     private PlayerMorphData clientData;
+
+    private static final List<String> TRANSIENT_KEYS = Arrays.asList(
+        "Health", "DeathTime", "HurtTime", "HurtByTimestamp", "Pos", "Motion", "Rotation", "UUID", "OnGround", "Air", "Fire", "FallDistance", "Invulnerable", "PortalCooldown", "AbsorptionAmount", "FallFlying", "Attributes", "Brain"
+    );
+
     @Override public MorphInfo getMorphInfo(Player player) { return player.getCapability(MorphInfo.CAPABILITY_INSTANCE).orElse(new MorphInfoImpl(player)); }
     @Override public boolean morphTo(ServerPlayer player, MorphVariant variant) {
         MorphInfo info = getMorphInfo(player);
@@ -28,7 +36,14 @@ public final class MorphHandler implements IApi {
     @Override public MorphVariant createVariant(LivingEntity living) {
         if (living == null) return null;
         MorphVariant variant = new MorphVariant(ForgeRegistries.ENTITY_TYPES.getKey(living.getType()));
-        if (!(living instanceof Player)) { CompoundTag tag = new CompoundTag(); living.saveWithoutId(tag); variant.nbt = tag; }
+        if (!(living instanceof Player)) {
+            CompoundTag tag = new CompoundTag();
+            living.saveWithoutId(tag);
+            for (String key : TRANSIENT_KEYS) {
+                tag.remove(key);
+            }
+            variant.nbt = tag;
+        }
         return variant;
     }
     @Override public boolean acquireMorph(ServerPlayer player, MorphVariant variant) {

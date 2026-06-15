@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
@@ -30,7 +31,6 @@ public class EventHandlerServer {
             MorphInfo info = MorphApi.getApi().getMorphInfo(player);
             Morph.channel.sendTo(new PacketMorphInfo(player.getId(), info.write(new CompoundTag())), player);
             MorphHandler.INSTANCE.syncToClient(player);
-            // Sync all other players to the joining player
             for (ServerPlayer other : player.server.getPlayerList().getPlayers()) {
                 if (other != player) {
                     MorphInfo otherInfo = MorphApi.getApi().getMorphInfo(other);
@@ -50,5 +50,11 @@ public class EventHandlerServer {
     @SubscribeEvent public void onPlayerClone(PlayerEvent.Clone event) {
         if (event.isWasDeath()) { event.getOriginal().getCapability(MorphInfo.CAPABILITY_INSTANCE).ifPresent(oldInfo -> { event.getEntity().getCapability(MorphInfo.CAPABILITY_INSTANCE).ifPresent(newInfo -> { newInfo.read(oldInfo.write(new CompoundTag())); }); }); }
     }
-    @SubscribeEvent public void onWorldLoad(LevelEvent.Load event) { if (!event.getLevel().isClientSide() && event.getLevel() instanceof net.minecraft.server.level.ServerLevel level) { MorphHandler.INSTANCE.setSaveData(MorphSavedData.get(level)); } }
+    @SubscribeEvent public void onWorldLoad(LevelEvent.Load event) {
+        if (!event.getLevel().isClientSide() && event.getLevel() instanceof net.minecraft.server.level.ServerLevel level) {
+            if (level.dimension() == Level.OVERWORLD) {
+                MorphHandler.INSTANCE.setSaveData(MorphSavedData.get(level));
+            }
+        }
+    }
 }
