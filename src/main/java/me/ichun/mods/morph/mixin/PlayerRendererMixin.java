@@ -28,54 +28,79 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
         MorphInfo info = MorphApi.getApi().getMorphInfo(player);
         if (info != null) {
             MorphState current = info.getCurrentState();
-            if (current != null && current.variant != null && !current.variant.id.getPath().equals("player")) {
-                LivingEntity entity = current.getEntity(player.level());
+            MorphState next = info.getNextState();
+
+            boolean isMorphed = current != null && current.variant != null && !current.variant.id.getPath().equals("player");
+            boolean isMorphing = next != null && next.variant != null;
+
+            if (isMorphed || isMorphing) {
+                float transitionProgress = (float)info.getTransitionTicks() / Math.max(1, info.getTransitionTime());
+                float scale = 1.0f;
+                if (next != null) {
+                    float s = (transitionProgress <= 0.5f) ? (1.0f - (transitionProgress * 2.0f)) : ((transitionProgress - 0.5f) * 2.0f);
+                    scale = (float)Math.sin(s * Math.PI / 2.0);
+                }
+
+                MorphState stateToRender = (next != null && transitionProgress > 0.5f) ? next : current;
+
+                if (stateToRender == null || stateToRender.variant == null || stateToRender.variant.id.getPath().equals("player")) {
+                    if (scale < 0.95f) {
+                        ci.cancel();
+                        poseStack.pushPose();
+                        poseStack.scale(scale, scale, scale);
+                        super.render(player, entityYaw, partialTicks, poseStack, buffer, packedLight);
+                        poseStack.popPose();
+                    }
+                    return;
+                }
+
+                LivingEntity entity = stateToRender.getEntity(player.level());
                 if (entity != null) {
                     ci.cancel();
-
-                    entity.setPos(player.getX(), player.getY(), player.getZ());
-                    entity.xo = player.xo; entity.yo = player.yo; entity.zo = player.zo;
-                    entity.setYRot(player.getYRot());
-                    entity.setXRot(player.getXRot());
-                    entity.yRotO = player.yRotO;
-                    entity.xRotO = player.xRotO;
-                    entity.yHeadRot = player.yHeadRot;
-                    entity.yHeadRotO = player.yHeadRotO;
-                    entity.yBodyRot = player.yBodyRot;
-                    entity.yBodyRotO = player.yBodyRotO;
-
-                    entity.walkAnimation.setSpeed(player.walkAnimation.speed());
-                    entity.walkAnimation.position(player.walkAnimation.position());
-
-                    entity.swingTime = player.swingTime;
-                    entity.swingingArm = player.swingingArm;
-                    entity.tickCount = player.tickCount;
-
-                    entity.setPose(player.getPose());
-                    entity.setShiftKeyDown(player.isShiftKeyDown());
-                    entity.setSprinting(player.isSprinting());
-
-                    if (player.isUsingItem()) {
-                        ((LivingEntityAccessor)entity).callSetLivingEntityFlag(1, true);
-                        ((LivingEntityAccessor)entity).setUseItemRemaining(((LivingEntityAccessor)player).getUseItemRemaining());
-                    } else {
-                        ((LivingEntityAccessor)entity).callSetLivingEntityFlag(1, false);
-                    }
+                    syncState(player, entity);
 
                     EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
                     EntityRenderer<? super LivingEntity> renderer = dispatcher.getRenderer(entity);
                     if (renderer != null) {
-                        float bodyYaw = Mth.lerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
                         poseStack.pushPose();
-                        if (info.getTransitionTicks() < info.getTransitionTime()) {
-                            float scale = (float)Math.sin(((float)info.getTransitionTicks() / info.getTransitionTime()) * Math.PI / 2.0);
-                            poseStack.scale(scale, scale, scale);
-                        }
-                        renderer.render(entity, bodyYaw, partialTicks, poseStack, buffer, packedLight);
+                        poseStack.scale(scale, scale, scale);
+                        renderer.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
                         poseStack.popPose();
                     }
                 }
             }
+        }
+    }
+
+    private void syncState(AbstractClientPlayer player, LivingEntity entity) {
+        entity.setPos(player.getX(), player.getY(), player.getZ());
+        entity.xo = player.xo; entity.yo = player.yo; entity.zo = player.zo;
+        entity.setYRot(player.getYRot());
+        entity.setXRot(player.getXRot());
+        entity.yRotO = player.yRotO;
+        entity.xRotO = player.xRotO;
+        entity.yHeadRot = player.yHeadRot;
+        entity.yHeadRotO = player.yHeadRotO;
+        entity.yBodyRot = player.yBodyRot;
+        entity.yBodyRotO = player.yBodyRotO;
+
+        entity.walkAnimation.setSpeed(player.walkAnimation.speed());
+        entity.walkAnimation.position(player.walkAnimation.position());
+
+        entity.swingTime = player.swingTime;
+        entity.swingingArm = player.swingingArm;
+        entity.tickCount = player.tickCount;
+
+        entity.setPose(player.getPose());
+        entity.setShiftKeyDown(player.isShiftKeyDown());
+        entity.setSprinting(player.isSprinting());
+        entity.setOnGround(player.onGround());
+
+        if (player.isUsingItem()) {
+            ((LivingEntityAccessor)entity).callSetLivingEntityFlag(1, true);
+            ((LivingEntityAccessor)entity).setUseItemRemaining(((LivingEntityAccessor)player).getUseItemRemaining());
+        } else {
+            ((LivingEntityAccessor)entity).callSetLivingEntityFlag(1, false);
         }
     }
 }

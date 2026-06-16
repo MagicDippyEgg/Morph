@@ -35,16 +35,17 @@ public class MorphClient {
             }
 
             if (Minecraft.getInstance().level != null) {
+                for (Player p : Minecraft.getInstance().level.players()) {
+                    MorphApi.getApi().getMorphInfo(p).tick();
+                }
+
                 Iterator<Map.Entry<Integer, net.minecraft.nbt.CompoundTag>> it = PacketMorphInfo.PENDING_UPDATES.entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry<Integer, net.minecraft.nbt.CompoundTag> entry = it.next();
                     Entity entity = Minecraft.getInstance().level.getEntity(entry.getKey());
                     if (entity instanceof Player) {
-                        MorphInfo info = MorphApi.getApi().getMorphInfo((Player) entity);
-                        if (info != null) {
-                            info.read(entry.getValue());
-                            it.remove();
-                        }
+                        MorphApi.getApi().getMorphInfo((Player) entity).read(entry.getValue());
+                        it.remove();
                     }
                 }
             }
