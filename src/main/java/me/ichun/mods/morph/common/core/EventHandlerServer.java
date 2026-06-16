@@ -20,6 +20,7 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -35,20 +36,33 @@ public class EventHandlerServer {
             if (info.getCurrentState() != null && info.getCurrentState().variant != null) {
                 String path = info.getCurrentState().variant.id.getPath();
                 Player player = event.player;
-                boolean canFly = path.equals("bat") || path.equals("parrot") || path.equals("ghast") || path.equals("blaze") || path.equals("bee") || path.equals("phantom");
+
+                boolean canFly = path.equals("bat") || path.equals("parrot") || path.equals("ghast") || path.equals("blaze") || path.equals("bee") || path.equals("phantom") || path.equals("ender_dragon") || path.equals("vex") || path.equals("wither") || path.equals("allay");
                 if (canFly) {
                     if (!player.getAbilities().mayfly) { player.getAbilities().mayfly = true; player.onUpdateAbilities(); }
                 } else if (!player.isCreative() && !player.isSpectator() && player.getAbilities().mayfly) {
                     player.getAbilities().mayfly = false; player.getAbilities().flying = false; player.onUpdateAbilities();
                 }
-                boolean isAquatic = path.equals("squid") || path.contains("fish") || path.equals("dolphin") || path.equals("guardian") || path.equals("elder_guardian");
+
+                boolean isAquatic = path.equals("squid") || path.contains("fish") || path.equals("dolphin") || path.equals("guardian") || path.equals("elder_guardian") || path.equals("axolotl") || path.equals("glow_squid");
                 if (isAquatic) { if (player.isEyeInFluid(FluidTags.WATER)) { player.setAirSupply(Math.min(player.getMaxAirSupply(), player.getAirSupply() + 4)); } }
             }
         }
     }
 
-    @SubscribeEvent public void onEntityDeath(LivingDeathEvent event) { if (event.getSource().getEntity() instanceof ServerPlayer player) { MorphApi.getApi().acquireMorph(player, MorphApi.getApi().createVariant(event.getEntity())); } }
+    @SubscribeEvent public void onFall(LivingFallEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            MorphInfo info = MorphApi.getApi().getMorphInfo(player);
+            if (info.getCurrentState() != null && info.getCurrentState().variant != null) {
+                String path = info.getCurrentState().variant.id.getPath();
+                if (path.equals("bat") || path.equals("parrot") || path.equals("bee") || path.equals("vex") || path.equals("allay") || path.equals("chicken")) {
+                    event.setCanceled(true);
+                }
+            }
+        }
+    }
 
+    @SubscribeEvent public void onEntityDeath(LivingDeathEvent event) { if (event.getSource().getEntity() instanceof ServerPlayer player) { MorphApi.getApi().acquireMorph(player, MorphApi.getApi().createVariant(event.getEntity())); } }
     @SubscribeEvent public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             MorphInfo info = MorphApi.getApi().getMorphInfo(player);
@@ -57,27 +71,9 @@ public class EventHandlerServer {
             if (info.getCurrentState() != null) { MorphHandler.INSTANCE.updatePlayerAttributes(player, info.getCurrentState().variant); }
         }
     }
-
-    @SubscribeEvent public void onStartTracking(PlayerEvent.StartTracking event) {
-        if (event.getTarget() instanceof Player trackedPlayer && event.getEntity() instanceof ServerPlayer tracker) {
-            MorphInfo info = MorphApi.getApi().getMorphInfo(trackedPlayer);
-            Morph.channel.sendTo(new PacketMorphInfo(trackedPlayer.getId(), info.write(new CompoundTag())), tracker);
-        }
-    }
-
+    @SubscribeEvent public void onStartTracking(PlayerEvent.StartTracking event) { if (event.getTarget() instanceof Player trackedPlayer && event.getEntity() instanceof ServerPlayer tracker) { MorphInfo info = MorphApi.getApi().getMorphInfo(trackedPlayer); Morph.channel.sendTo(new PacketMorphInfo(trackedPlayer.getId(), info.write(new CompoundTag())), tracker); } }
     @SubscribeEvent public void onPlayerClone(PlayerEvent.Clone event) {
-        if (event.isWasDeath()) {
-            event.getOriginal().getCapability(MorphInfo.CAPABILITY_INSTANCE).ifPresent(oldInfo -> {
-                event.getEntity().getCapability(MorphInfo.CAPABILITY_INSTANCE).ifPresent(newInfo -> {
-                    newInfo.read(oldInfo.write(new CompoundTag()));
-                    if (newInfo.getCurrentState() != null) { MorphHandler.INSTANCE.updatePlayerAttributes((ServerPlayer) event.getEntity(), newInfo.getCurrentState().variant); }
-                });
-            });
-        }
+        if (event.isWasDeath()) { event.getOriginal().getCapability(MorphInfo.CAPABILITY_INSTANCE).ifPresent(oldInfo -> { event.getEntity().getCapability(MorphInfo.CAPABILITY_INSTANCE).ifPresent(newInfo -> { newInfo.read(oldInfo.write(new CompoundTag())); if (newInfo.getCurrentState() != null) { MorphHandler.INSTANCE.updatePlayerAttributes((ServerPlayer) event.getEntity(), newInfo.getCurrentState().variant); } }); }); }
     }
-    @SubscribeEvent public void onWorldLoad(LevelEvent.Load event) {
-        if (!event.getLevel().isClientSide() && event.getLevel() instanceof net.minecraft.server.level.ServerLevel level) {
-            if (level.dimension() == Level.OVERWORLD) { MorphHandler.INSTANCE.setSaveData(MorphSavedData.get(level)); }
-        }
-    }
+    @SubscribeEvent public void onWorldLoad(LevelEvent.Load event) { if (!event.getLevel().isClientSide() && event.getLevel() instanceof net.minecraft.server.level.ServerLevel level) { if (level.dimension() == Level.OVERWORLD) { MorphHandler.INSTANCE.setSaveData(MorphSavedData.get(level)); } } }
 }

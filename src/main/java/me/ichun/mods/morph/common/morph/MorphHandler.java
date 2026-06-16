@@ -68,7 +68,7 @@ public final class MorphHandler implements IApi {
         }
     }
 
-    @Override public boolean demorph(ServerPlayer player) { return morphTo(player, MorphVariant.createPlayerMorph(player.getUUID(), true)); }
+    @Override public boolean demorph(ServerPlayer player) { boolean success = morphTo(player, MorphVariant.createPlayerMorph(player.getUUID(), true)); if (success) { player.level().playSound(null, player.getX(), player.getY(), player.getZ(), Morph.Sounds.MORPH.get(), net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 0.8f); } return success; }
 
     @Override public MorphVariant createVariant(LivingEntity living) {
         if (living == null) return null;
