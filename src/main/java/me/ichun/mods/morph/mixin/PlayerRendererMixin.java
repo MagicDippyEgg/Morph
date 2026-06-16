@@ -32,26 +32,25 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
                 if (entity != null) {
                     ci.cancel();
 
-                    // Basic sync
                     entity.setPos(player.getX(), player.getY(), player.getZ());
                     entity.xo = player.xo; entity.yo = player.yo; entity.zo = player.zo;
+
                     entity.setYRot(player.getYRot());
                     entity.setXRot(player.getXRot());
                     entity.yRotO = player.yRotO;
                     entity.xRotO = player.xRotO;
+
                     entity.yHeadRot = player.yHeadRot;
                     entity.yHeadRotO = player.yHeadRotO;
+
                     entity.yBodyRot = player.yBodyRot;
                     entity.yBodyRotO = player.yBodyRotO;
 
-                    // Animation sync
                     entity.walkAnimation.setSpeed(player.walkAnimation.speed());
                     entity.walkAnimation.position(player.walkAnimation.position());
-                    entity.walkAnimation.update(player.walkAnimation.speed(), 1.0f);
 
                     entity.swingTime = player.swingTime;
                     entity.swingingArm = player.swingingArm;
-                    entity.swingTime = player.swingTime;
                     entity.tickCount = player.tickCount;
 
                     entity.setShiftKeyDown(player.isShiftKeyDown());
@@ -60,7 +59,8 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
                     EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
                     EntityRenderer<? super LivingEntity> renderer = dispatcher.getRenderer(entity);
                     if (renderer != null) {
-                        renderer.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
+                        float bodyYaw = net.minecraft.util.Mth.lerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
+                        renderer.render(entity, bodyYaw, partialTicks, poseStack, buffer, packedLight);
                     }
                 }
             }

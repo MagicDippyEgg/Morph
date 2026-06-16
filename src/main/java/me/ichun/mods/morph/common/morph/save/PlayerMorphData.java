@@ -22,13 +22,11 @@ public class PlayerMorphData {
     }
     public static PlayerMorphData deserialize(CompoundTag tag) {
         PlayerMorphData data = new PlayerMorphData(tag.getUUID("uuid")); data.acquiredMorphs.clear();
-        ListTag list = tag.getList("morphs", Tag.TAG_COMPOUND);
+        ListTag list = tag.getList("morphs", 10);
         for (int i = 0; i < list.size(); i++) data.acquiredMorphs.add(MorphVariant.deserialize(list.getCompound(i)));
-
         boolean hasPlayer = false;
         for (MorphVariant v : data.acquiredMorphs) { if (v.id.getPath().equals("player")) { hasPlayer = true; break; } }
         if (!hasPlayer) data.acquiredMorphs.add(0, MorphVariant.createPlayerMorph(data.uuid, true));
-
         return data;
     }
 }

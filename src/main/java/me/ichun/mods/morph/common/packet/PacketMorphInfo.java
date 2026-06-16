@@ -7,13 +7,25 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import java.util.Optional;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class PacketMorphInfo extends AbstractPacket {
+    public static final Map<Integer, CompoundTag> PENDING_UPDATES = new ConcurrentHashMap<>();
     private int entityId; private CompoundTag tag;
     public PacketMorphInfo() {}
     public PacketMorphInfo(int entityId, CompoundTag tag) { this.entityId = entityId; this.tag = tag; }
     @Override public void writeTo(FriendlyByteBuf buffer) { buffer.writeInt(entityId); buffer.writeNbt(tag); }
     @Override public void readFrom(FriendlyByteBuf buffer) { entityId = buffer.readInt(); tag = buffer.readNbt(); }
     @Override public Optional<Runnable> process(Player player) {
-        return Optional.of(() -> { Entity entity = player.level().getEntity(entityId); if (entity instanceof Player) { MorphInfo info = MorphApi.getApi().getMorphInfo((Player) entity); if (info != null) info.read(tag); } });
+        return Optional.of(() -> {
+            Entity entity = player.level().getEntity(entityId);
+            if (entity instanceof Player) {
+                MorphInfo info = MorphApi.getApi().getMorphInfo((Player) entity);
+                if (info != null) info.read(tag);
+            } else {
+                PENDING_UPDATES.put(entityId, tag);
+            }
+        });
     }
 }

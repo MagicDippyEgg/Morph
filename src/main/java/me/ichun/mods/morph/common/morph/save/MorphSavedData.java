@@ -12,7 +12,7 @@ public class MorphSavedData extends SavedData {
     public static MorphSavedData get(ServerLevel level) { return level.getDataStorage().computeIfAbsent(MorphSavedData::load, MorphSavedData::new, "morph_data"); }
     public static MorphSavedData load(CompoundTag tag) {
         MorphSavedData data = new MorphSavedData();
-        ListTag list = tag.getList("players", Tag.TAG_COMPOUND);
+        ListTag list = tag.getList("players", 10);
         for (int i = 0; i < list.size(); i++) { PlayerMorphData pData = PlayerMorphData.deserialize(list.getCompound(i)); data.playerMorphs.put(pData.uuid, pData); }
         return data;
     }
