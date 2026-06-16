@@ -57,14 +57,15 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
                 LivingEntity entity = stateToRender.getEntity(player.level());
                 if (entity != null) {
                     ci.cancel();
-                    syncState(player, entity);
+                    syncState(player, entity, partialTicks);
 
                     EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
                     EntityRenderer<? super LivingEntity> renderer = dispatcher.getRenderer(entity);
                     if (renderer != null) {
                         poseStack.pushPose();
                         poseStack.scale(scale, scale, scale);
-                        renderer.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
+                        float yaw = Mth.lerp(partialTicks, player.yBodyRotO, player.yBodyRot);
+                        renderer.render(entity, yaw, partialTicks, poseStack, buffer, packedLight);
                         poseStack.popPose();
                     }
                 }
@@ -72,7 +73,7 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
         }
     }
 
-    private void syncState(AbstractClientPlayer player, LivingEntity entity) {
+    private void syncState(AbstractClientPlayer player, LivingEntity entity, float partialTicks) {
         entity.setPos(player.getX(), player.getY(), player.getZ());
         entity.xo = player.xo; entity.yo = player.yo; entity.zo = player.zo;
         entity.setYRot(player.getYRot());

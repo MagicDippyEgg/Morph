@@ -34,6 +34,8 @@ public final class MorphHandler implements IApi {
 
     @Override public boolean morphTo(ServerPlayer player, MorphVariant variant) {
         MorphInfo info = getMorphInfo(player);
+        if (info.getCurrentState() != null && info.getCurrentState().variant.id.equals(variant.id)) return false;
+
         info.setNextState(new MorphState(variant), 80);
         CompoundTag tag = info.write(new CompoundTag());
         Morph.channel.sendTo(new PacketMorphInfo(player.getId(), tag), player);
@@ -42,6 +44,13 @@ public final class MorphHandler implements IApi {
         updatePlayerAttributes(player, variant);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), Morph.Sounds.MORPH.get(), net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 1.0f);
         player.refreshDimensions();
+
+        PlayerMorphData data = getPlayerMorphData(player);
+        if (data != null) {
+            data.currentVariant = variant;
+            if (saveData != null) saveData.setDirty();
+        }
+
         return true;
     }
 
@@ -61,14 +70,26 @@ public final class MorphHandler implements IApi {
             if (dummy != null) {
                 AttributeInstance dummyAttr = dummy.getAttribute(attribute);
                 if (dummyAttr != null) {
-                    double diff = dummyAttr.getValue() - playerAttr.getBaseValue();
+                    double dummyVal = dummyAttr.getBaseValue(); // Use base value to avoid scaling issues
+                    double playerBase = playerAttr.getBaseValue();
+                    double diff = dummyVal - playerBase;
+
+                    // Cap speed difference to avoid "sonic" players
+                    if (attribute == Attributes.MOVEMENT_SPEED) {
+                        diff = Math.max(-0.05, Math.min(0.05, diff));
+                    }
+
                     if (Math.abs(diff) > 0.0001) { playerAttr.addTransientModifier(new AttributeModifier(MORPH_MOD_UUID, "Morph Modifier", diff, AttributeModifier.Operation.ADDITION)); }
                 }
             }
         }
     }
 
-    @Override public boolean demorph(ServerPlayer player) { boolean success = morphTo(player, MorphVariant.createPlayerMorph(player.getUUID(), true)); if (success) { player.level().playSound(null, player.getX(), player.getY(), player.getZ(), Morph.Sounds.MORPH.get(), net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 0.8f); } return success; }
+    @Override public boolean demorph(ServerPlayer player) {
+        boolean success = morphTo(player, MorphVariant.createPlayerMorph(player.getUUID(), true));
+        if (success) { player.level().playSound(null, player.getX(), player.getY(), player.getZ(), Morph.Sounds.MORPH.get(), net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 0.8f); }
+        return success;
+    }
 
     @Override public MorphVariant createVariant(LivingEntity living) {
         if (living == null) return null;
@@ -85,7 +106,7 @@ public final class MorphHandler implements IApi {
         if (variant == null) return false;
         PlayerMorphData data = getPlayerMorphData(player);
         if (data != null && data.addVariant(variant) != null) {
-            saveData.setDirty();
+            if (saveData != null) { saveData.setDirty(); }
             Morph.channel.sendTo(new PacketAcquisition(variant.id.toString()), player);
             syncToClient(player);
             return true;
