@@ -44,7 +44,7 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
                 MorphState stateToRender = (next != null && transitionProgress > 0.5f) ? next : current;
 
                 if (stateToRender == null || stateToRender.variant == null || stateToRender.variant.id.getPath().equals("player")) {
-                    if (scale < 0.98f) {
+                    if (scale < 0.95f) {
                         ci.cancel();
                         poseStack.pushPose();
                         poseStack.scale(scale, scale, scale);
@@ -64,9 +64,8 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
                     if (renderer != null) {
                         poseStack.pushPose();
                         poseStack.scale(scale, scale, scale);
-                        // Using proxy entity's already synced and lerp-ready rotation
-                        float bodyYaw = Mth.lerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
-                        renderer.render(entity, bodyYaw, partialTicks, poseStack, buffer, packedLight);
+                        // Using player's yaw directly as it is already interpolated by the caller
+                        renderer.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
                         poseStack.popPose();
                     }
                 }
@@ -74,13 +73,42 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
         }
     }
 
+    @Inject(method = "renderRightHand", at = @At("HEAD"), cancellable = true)
+    public void onRenderRightHand(PoseStack poseStack, MultiBufferSource buffer, int packedLight, AbstractClientPlayer player, CallbackInfo ci) {
+        if (isActuallyMorphed(player)) { ci.cancel(); }
+    }
+
+    @Inject(method = "renderLeftHand", at = @At("HEAD"), cancellable = true)
+    public void onRenderLeftHand(PoseStack poseStack, MultiBufferSource buffer, int packedLight, AbstractClientPlayer player, CallbackInfo ci) {
+        if (isActuallyMorphed(player)) { ci.cancel(); }
+    }
+
+    private boolean isActuallyMorphed(AbstractClientPlayer player) {
+        if (MorphApi.getApi() == null) return false;
+        MorphInfo info = MorphApi.getApi().getMorphInfo(player);
+        return info != null && info.getCurrentState() != null && !info.getCurrentState().variant.id.getPath().equals("player");
+    }
+
     private void syncState(AbstractClientPlayer player, LivingEntity entity) {
-        // Sync walk animation state directly to avoid pop-in
+        entity.setPos(player.getX(), player.getY(), player.getZ());
+        entity.xo = player.xo; entity.yo = player.yo; entity.zo = player.zo;
+        entity.setYRot(player.getYRot());
+        entity.setXRot(player.getXRot());
+        entity.yRotO = player.yRotO;
+        entity.xRotO = player.xRotO;
+        entity.yHeadRot = player.yHeadRot;
+        entity.yHeadRotO = player.yHeadRotO;
+        entity.yBodyRot = player.yBodyRot;
+        entity.yBodyRotO = player.yBodyRotO;
+
         entity.walkAnimation.setSpeed(player.walkAnimation.speed());
         entity.walkAnimation.position(player.walkAnimation.position());
 
+        entity.attackAnim = player.attackAnim;
+        entity.oAttackAnim = player.oAttackAnim;
         entity.swingTime = player.swingTime;
         entity.swingingArm = player.swingingArm;
+        entity.tickCount = player.tickCount;
 
         entity.setPose(player.getPose());
         entity.setShiftKeyDown(player.isShiftKeyDown());

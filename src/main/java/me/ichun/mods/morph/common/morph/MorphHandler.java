@@ -73,9 +73,9 @@ public final class MorphHandler implements IApi {
                     double playerBase = playerAttr.getBaseValue();
                     double diff = dummyVal - playerBase;
 
-                    // Finer speed control to match original mod's "feel"
                     if (attribute == Attributes.MOVEMENT_SPEED) {
-                        diff = diff * 0.7; // Reduce effect to match mob pace better
+                        // Original mod used a factor to keep players from being too fast
+                        // diff = diff * 0.5;
                     }
 
                     if (Math.abs(diff) > 0.0001) {
