@@ -17,6 +17,11 @@ public class MorphInfoImpl implements MorphInfo {
     @Override public void tick() {
         if (next != null) { transitionTicks++; if (transitionTicks >= transitionTime) { current = next; next = null; transitionTicks = 0; } }
     }
+    @Override public void clientTick(Player player) {
+        if (current != null) current.tick(player);
+        if (next != null) next.tick(player);
+        tick();
+    }
     @Override public CompoundTag write(CompoundTag tag) {
         if (current != null) tag.put("current", current.variant.serialize());
         if (next != null) { tag.put("next", next.variant.serialize()); tag.putInt("ticks", transitionTicks); tag.putInt("time", transitionTime); }

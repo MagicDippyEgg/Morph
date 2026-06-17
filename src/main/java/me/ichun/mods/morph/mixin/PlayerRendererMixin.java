@@ -57,51 +57,36 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
                 LivingEntity entity = stateToRender.getEntity(player.level());
                 if (entity != null) {
                     ci.cancel();
-                    syncState(player, entity, partialTicks);
+
+                    // Final minor syncs that happen per-frame
+                    entity.walkAnimation.setSpeed(player.walkAnimation.speed());
+                    entity.walkAnimation.position(player.walkAnimation.position());
+                    entity.swingTime = player.swingTime;
+                    entity.swingingArm = player.swingingArm;
+                    entity.setPose(player.getPose());
+                    entity.setShiftKeyDown(player.isShiftKeyDown());
+                    entity.setSprinting(player.isSprinting());
+
+                    if (player.isUsingItem()) {
+                        ((LivingEntityAccessor)entity).callSetLivingEntityFlag(1, true);
+                        ((LivingEntityAccessor)entity).setUseItemRemaining(((LivingEntityAccessor)player).getUseItemRemaining());
+                    } else {
+                        ((LivingEntityAccessor)entity).callSetLivingEntityFlag(1, false);
+                    }
 
                     EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
                     EntityRenderer<? super LivingEntity> renderer = dispatcher.getRenderer(entity);
                     if (renderer != null) {
                         poseStack.pushPose();
                         poseStack.scale(scale, scale, scale);
-                        float yaw = Mth.lerp(partialTicks, player.yBodyRotO, player.yBodyRot);
-                        renderer.render(entity, yaw, partialTicks, poseStack, buffer, packedLight);
+
+                        // Use interpolated body rotation from the PROXY entity which now has correct O values
+                        float bodyYaw = Mth.lerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
+                        renderer.render(entity, bodyYaw, partialTicks, poseStack, buffer, packedLight);
                         poseStack.popPose();
                     }
                 }
             }
-        }
-    }
-
-    private void syncState(AbstractClientPlayer player, LivingEntity entity, float partialTicks) {
-        entity.setPos(player.getX(), player.getY(), player.getZ());
-        entity.xo = player.xo; entity.yo = player.yo; entity.zo = player.zo;
-        entity.setYRot(player.getYRot());
-        entity.setXRot(player.getXRot());
-        entity.yRotO = player.yRotO;
-        entity.xRotO = player.xRotO;
-        entity.yHeadRot = player.yHeadRot;
-        entity.yHeadRotO = player.yHeadRotO;
-        entity.yBodyRot = player.yBodyRot;
-        entity.yBodyRotO = player.yBodyRotO;
-
-        entity.walkAnimation.setSpeed(player.walkAnimation.speed());
-        entity.walkAnimation.position(player.walkAnimation.position());
-
-        entity.swingTime = player.swingTime;
-        entity.swingingArm = player.swingingArm;
-        entity.tickCount = player.tickCount;
-
-        entity.setPose(player.getPose());
-        entity.setShiftKeyDown(player.isShiftKeyDown());
-        entity.setSprinting(player.isSprinting());
-        entity.setOnGround(player.onGround());
-
-        if (player.isUsingItem()) {
-            ((LivingEntityAccessor)entity).callSetLivingEntityFlag(1, true);
-            ((LivingEntityAccessor)entity).setUseItemRemaining(((LivingEntityAccessor)player).getUseItemRemaining());
-        } else {
-            ((LivingEntityAccessor)entity).callSetLivingEntityFlag(1, false);
         }
     }
 }

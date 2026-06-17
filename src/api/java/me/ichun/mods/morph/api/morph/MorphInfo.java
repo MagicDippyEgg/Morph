@@ -10,7 +10,7 @@ public interface MorphInfo {
     int getTransitionTicks();
     int getTransitionTime();
     void setNextState(MorphState state, int transitionTime);
-    void tick();
+    void tick(); void clientTick(net.minecraft.world.entity.player.Player player);
     CompoundTag write(CompoundTag tag);
     void read(CompoundTag tag);
 }

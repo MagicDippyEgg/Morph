@@ -29,16 +29,18 @@ public class MorphClient {
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.START && Minecraft.getInstance().level != null) {
+            for (Player p : Minecraft.getInstance().level.players()) {
+                MorphApi.getApi().getMorphInfo(p).clientTick(p);
+            }
+        }
+
         if (event.phase == TickEvent.Phase.END) {
             if (OPEN_GUI.consumeClick()) {
                 Minecraft.getInstance().setScreen(new GuiMorphSelector());
             }
 
             if (Minecraft.getInstance().level != null) {
-                for (Player p : Minecraft.getInstance().level.players()) {
-                    MorphApi.getApi().getMorphInfo(p).tick();
-                }
-
                 Iterator<Map.Entry<Integer, net.minecraft.nbt.CompoundTag>> it = PacketMorphInfo.PENDING_UPDATES.entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry<Integer, net.minecraft.nbt.CompoundTag> entry = it.next();
