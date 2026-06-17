@@ -44,7 +44,7 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
                 MorphState stateToRender = (next != null && transitionProgress > 0.5f) ? next : current;
 
                 if (stateToRender == null || stateToRender.variant == null || stateToRender.variant.id.getPath().equals("player")) {
-                    if (scale < 0.95f) {
+                    if (scale < 0.98f) {
                         ci.cancel();
                         poseStack.pushPose();
                         poseStack.scale(scale, scale, scale);
@@ -57,36 +57,40 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
                 LivingEntity entity = stateToRender.getEntity(player.level());
                 if (entity != null) {
                     ci.cancel();
-
-                    // Final minor syncs that happen per-frame
-                    entity.walkAnimation.setSpeed(player.walkAnimation.speed());
-                    entity.walkAnimation.position(player.walkAnimation.position());
-                    entity.swingTime = player.swingTime;
-                    entity.swingingArm = player.swingingArm;
-                    entity.setPose(player.getPose());
-                    entity.setShiftKeyDown(player.isShiftKeyDown());
-                    entity.setSprinting(player.isSprinting());
-
-                    if (player.isUsingItem()) {
-                        ((LivingEntityAccessor)entity).callSetLivingEntityFlag(1, true);
-                        ((LivingEntityAccessor)entity).setUseItemRemaining(((LivingEntityAccessor)player).getUseItemRemaining());
-                    } else {
-                        ((LivingEntityAccessor)entity).callSetLivingEntityFlag(1, false);
-                    }
+                    syncState(player, entity);
 
                     EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
                     EntityRenderer<? super LivingEntity> renderer = dispatcher.getRenderer(entity);
                     if (renderer != null) {
                         poseStack.pushPose();
                         poseStack.scale(scale, scale, scale);
-
-                        // Use interpolated body rotation from the PROXY entity which now has correct O values
+                        // Using proxy entity's already synced and lerp-ready rotation
                         float bodyYaw = Mth.lerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
                         renderer.render(entity, bodyYaw, partialTicks, poseStack, buffer, packedLight);
                         poseStack.popPose();
                     }
                 }
             }
+        }
+    }
+
+    private void syncState(AbstractClientPlayer player, LivingEntity entity) {
+        // Sync walk animation state directly to avoid pop-in
+        entity.walkAnimation.setSpeed(player.walkAnimation.speed());
+        entity.walkAnimation.position(player.walkAnimation.position());
+
+        entity.swingTime = player.swingTime;
+        entity.swingingArm = player.swingingArm;
+
+        entity.setPose(player.getPose());
+        entity.setShiftKeyDown(player.isShiftKeyDown());
+        entity.setSprinting(player.isSprinting());
+
+        if (player.isUsingItem()) {
+            ((LivingEntityAccessor)entity).callSetLivingEntityFlag(1, true);
+            ((LivingEntityAccessor)entity).setUseItemRemaining(((LivingEntityAccessor)player).getUseItemRemaining());
+        } else {
+            ((LivingEntityAccessor)entity).callSetLivingEntityFlag(1, false);
         }
     }
 }

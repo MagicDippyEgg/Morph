@@ -15,7 +15,10 @@ public class MorphInfoImpl implements MorphInfo {
     @Override public int getTransitionTime() { return transitionTime; }
     @Override public void setNextState(MorphState state, int transitionTime) { this.next = state; this.transitionTime = transitionTime; this.transitionTicks = 0; }
     @Override public void tick() {
-        if (next != null) { transitionTicks++; if (transitionTicks >= transitionTime) { current = next; next = null; transitionTicks = 0; } }
+        if (next != null) {
+            transitionTicks++;
+            if (transitionTicks >= transitionTime) { current = next; next = null; transitionTicks = 0; }
+        }
     }
     @Override public void clientTick(Player player) {
         if (current != null) current.tick(player);
@@ -29,6 +32,12 @@ public class MorphInfoImpl implements MorphInfo {
     }
     @Override public void read(CompoundTag tag) {
         if (tag.contains("current")) current = new MorphState(MorphVariant.deserialize(tag.getCompound("current")));
-        if (tag.contains("next")) { next = new MorphState(MorphVariant.deserialize(tag.getCompound("next"))); transitionTicks = tag.getInt("ticks"); transitionTime = tag.getInt("time"); }
+        if (tag.contains("next")) {
+            next = new MorphState(MorphVariant.deserialize(tag.getCompound("next")));
+            transitionTicks = tag.getInt("ticks");
+            transitionTime = tag.getInt("time");
+        } else {
+            next = null;
+        }
     }
 }

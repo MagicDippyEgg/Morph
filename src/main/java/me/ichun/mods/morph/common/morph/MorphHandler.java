@@ -50,7 +50,6 @@ public final class MorphHandler implements IApi {
             data.currentVariant = variant;
             if (saveData != null) saveData.setDirty();
         }
-
         return true;
     }
 
@@ -70,25 +69,25 @@ public final class MorphHandler implements IApi {
             if (dummy != null) {
                 AttributeInstance dummyAttr = dummy.getAttribute(attribute);
                 if (dummyAttr != null) {
-                    double dummyVal = dummyAttr.getBaseValue(); // Use base value to avoid scaling issues
+                    double dummyVal = dummyAttr.getBaseValue();
                     double playerBase = playerAttr.getBaseValue();
                     double diff = dummyVal - playerBase;
 
-                    // Cap speed difference to avoid "sonic" players
+                    // Finer speed control to match original mod's "feel"
                     if (attribute == Attributes.MOVEMENT_SPEED) {
-                        diff = Math.max(-0.05, Math.min(0.05, diff));
+                        diff = diff * 0.7; // Reduce effect to match mob pace better
                     }
 
-                    if (Math.abs(diff) > 0.0001) { playerAttr.addTransientModifier(new AttributeModifier(MORPH_MOD_UUID, "Morph Modifier", diff, AttributeModifier.Operation.ADDITION)); }
+                    if (Math.abs(diff) > 0.0001) {
+                        playerAttr.addTransientModifier(new AttributeModifier(MORPH_MOD_UUID, "Morph Modifier", diff, AttributeModifier.Operation.ADDITION));
+                    }
                 }
             }
         }
     }
 
     @Override public boolean demorph(ServerPlayer player) {
-        boolean success = morphTo(player, MorphVariant.createPlayerMorph(player.getUUID(), true));
-        if (success) { player.level().playSound(null, player.getX(), player.getY(), player.getZ(), Morph.Sounds.MORPH.get(), net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 0.8f); }
-        return success;
+        return morphTo(player, MorphVariant.createPlayerMorph(player.getUUID(), true));
     }
 
     @Override public MorphVariant createVariant(LivingEntity living) {

@@ -42,7 +42,8 @@ public abstract class EntityMixin {
                 if (current != null && current.variant != null && !current.variant.id.getPath().equals("player")) {
                     LivingEntity entity = current.getEntity(player.level());
                     if (entity != null) {
-                        cir.setReturnValue(((LivingEntityAccessor)entity).callGetEyeHeight(pose, dimensions));
+                        float eyeHeight = ((LivingEntityAccessor)entity).callGetEyeHeight(pose, dimensions);
+                        cir.setReturnValue(eyeHeight);
                     }
                 }
             }
