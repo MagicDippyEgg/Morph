@@ -1,35 +1,38 @@
-name: Java CI with Gradle
-
+name: Build and Release
 on:
   push:
-    branches: [ "master", "main", "1.20.1" ]
+    branches: [ main, master, 1.20.1 ]
   pull_request:
-    branches: [ "master", "main", "1.20.1" ]
-  workflow_dispatch:
-
+    branches: [ main, master, 1.20.1 ]
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
-    - name: Build with Gradle
-      run: ./gradlew build
-
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: Morph-1.20.1-JAR
-        path: build/libs/Morph-1.20.1-1.0.0.jar
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Download iChunUtil dependency
+        run: |
+          mkdir -p libs
+          curl -L -o libs/iChunUtil-1.20.1-Forge-1.0.0.jar https://edge.forgecdn.net/files/5477/560/iChunUtil-1.20.1-Forge-1.0.0.jar
+      - name: Build with Gradle
+        run: ./gradlew build
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Morph-1.20.1
+          path: build/libs/*.jar
+      - name: Create Release
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/1.20.1')
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v1.0.0-1.20.1-final
+          name: Morph 1.20.1 Final Port
+          files: build/libs/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,56 +1,31 @@
 package me.ichun.mods.morph.common.packet;
-
 import me.ichun.mods.ichunutil.common.network.AbstractPacket;
-import me.ichun.mods.morph.common.morph.MorphHandler;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+import me.ichun.mods.morph.api.MorphApi;
+import me.ichun.mods.morph.api.morph.MorphInfo;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import java.util.Optional;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class PacketMorphInfo extends AbstractPacket
-{
-    public int entId;
-    public CompoundNBT nbt;
-
-    public PacketMorphInfo(){}
-
-    public PacketMorphInfo(int id, CompoundNBT nbt)
-    {
-        this.entId = id;
-        this.nbt = nbt;
-    }
-
-    @Override
-    public void writeTo(PacketBuffer buf)
-    {
-        buf.writeInt(entId);
-        buf.writeCompoundTag(nbt);
-    }
-
-    @Override
-    public void readFrom(PacketBuffer buf)
-    {
-        entId = buf.readInt();
-        nbt = buf.readCompoundTag();
-    }
-
-    @Override
-    public void process(NetworkEvent.Context context)
-    {
-        context.enqueueWork(this::handleClient);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void handleClient()
-    {
-        Entity entity = Minecraft.getInstance().world.getEntityByID(entId);
-        if(entity instanceof PlayerEntity && !entity.removed) // we use capabilities, if the entity is removed, then caps will error
-        {
-            MorphHandler.INSTANCE.getMorphInfo((PlayerEntity)entity).read(nbt);
-        }
+public class PacketMorphInfo extends AbstractPacket {
+    public static final Map<Integer, CompoundTag> PENDING_UPDATES = new ConcurrentHashMap<>();
+    private int entityId; private CompoundTag tag;
+    public PacketMorphInfo() {}
+    public PacketMorphInfo(int entityId, CompoundTag tag) { this.entityId = entityId; this.tag = tag; }
+    @Override public void writeTo(FriendlyByteBuf buffer) { buffer.writeInt(entityId); buffer.writeNbt(tag); }
+    @Override public void readFrom(FriendlyByteBuf buffer) { entityId = buffer.readInt(); tag = buffer.readNbt(); }
+    @Override public Optional<Runnable> process(Player player) {
+        return Optional.of(() -> {
+            Entity entity = player.level().getEntity(entityId);
+            if (entity instanceof Player) {
+                MorphInfo info = MorphApi.getApi().getMorphInfo((Player) entity);
+                if (info != null) info.read(tag);
+            } else {
+                PENDING_UPDATES.put(entityId, tag);
+            }
+        });
     }
 }
